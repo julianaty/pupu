@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>噗噗手账 · 月历 | 每日好心情✨</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f0e8 0%, #f9f4ed 100%);
+            font-family: 'PingFang SC', 'Noto Sans SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
+            padding: 20px 16px 48px;
+            color: #3d3229;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 背景装饰元素 */
+        body::before, body::after {
+            content: '💩';
+            position: fixed;
+            font-size: 120px;
+            opacity: 0.02;
+            z-index: -1;
+            transform: rotate(15deg);
+        }
+        
+        body::before {
+            top: 10%;
+            right: -50px;
+        }
+        
+        body::after {
+            bottom: 10%;
+            left: -50px;
+        }
+
+        .journal {
+            max-width: 620px;
+            margin: 0 auto;
+            background: #fefcf8;
+            border-radius: 24px;
+            padding: 28px 22px 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.02);
+            border: 1px solid #e8e0d4;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .journal:hover {
+            transform: translateY(-2px);
+        }
+
+        .journal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 8px;
+            background: #e0d5c5;
+            border-radius: 0 0 8px 8px;
+            opacity: 0.6;
+        }
+
+        /* 正能量语录样式 */
+        .positive-quote {
+            background: linear-gradient(120deg, #fff9f0 0%, #fff4e3 100%);
+            border: 1px solid #f0e0cc;
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin: 12px 0 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            animation: quoteFadeIn 0.8s ease-out;
+        }
+
+        @keyframes quoteFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .quote-text {
+            font-size: 0.85rem;
+            color: #8a6a4a;
+            line-height: 1.6;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .quote-author {
+            font-size: 0.65rem;
+            color: #b59a78;
+            margin-top: 6px;
+            letter-spacing: 1px;
+            font-style: italic;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: #4a3f35;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+            animation: titlePop 0.5s ease-out;
+        }
+
+        @keyframes titlePop {
+            0% { transform: scale(0.9); opacity: 0; }
+            70% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .sub {
+            font-size: 0.72rem;
+            color: #b5a590;
+            padding-left: 0;
+            margin: 6px 0 10px 0;
+            letter-spacing: 0.5px;
+        }
+
+        .month-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #faf6f0;
+            border-radius: 16px;
+            padding: 8px 10px 8px 16px;
+            margin: 8px 0 20px;
+            border: 1px solid #e8e0d4;
+            position: relative;
+        }
+
+        .month-nav {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .month-nav button {
+            background: #fefcf8;
+            border: 1px solid #ddd5c8;
+            font-size: 1rem;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #8a7a6a;
+            transition: all 0.15s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .month-nav button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(200, 150, 106, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s ease, height 0.3s ease;
+        }
+
+        .month-nav button:active::after {
+            width: 100px;
+            height: 100px;
+        }
+
+        .month-nav button:active {
+            background: #f0e8dc;
+            transform: scale(0.95);
+        }
+
+        .current-month {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #5a4d40;
+            letter-spacing: 1px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .report-btn {
+            background: #fefcf8;
+            border: 1px solid #ddd5c8;
+            border-radius: 14px;
+            padding: 7px 16px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #8a7a6a;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .report-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(200, 150, 106, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s ease, height 0.3s ease;
+        }
+
+        .report-btn:active::after {
+            width: 100px;
+            height: 100px;
+        }
+
+        .report-btn:active {
+            background: #f0e8dc;
+            transform: scale(0.97);
+        }
+
+        .calendar {
+            background: #fefcf8;
+            border-radius: 20px;
+            padding: 12px 8px 16px;
+            margin-bottom: 20px;
+            border: 1px solid #ece5d8;
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #c4b5a0;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .cal-day {
+            aspect-ratio: 1 / 1;
+            background: #faf7f2;
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #5a4d40;
+            border: 1px solid #ece5d8;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            padding: 4px 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 日历格子悬停效果 */
+        .cal-day:not(.empty):hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(200, 150, 106, 0.1);
+        }
+
+        .cal-day.empty {
+            background: #f5f1eb;
+            border: 1px dashed #e0d8cc;
+            cursor: default;
+            opacity: 0.5;
+        }
+
+        .day-number {
+            font-size: 0.78rem;
+            font-weight: 500;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .poo-marker {
+            font-size: 1rem;
+            margin-top: 1px;
+            line-height: 1;
+            transition: transform 0.2s ease;
+        }
+
+        .cal-day:hover .poo-marker {
+            transform: scale(1.1);
+        }
+
+        .cal-day.has-poo {
+            background: linear-gradient(135deg, #fdf2e6 0%, #fcf0e3 100%);
+            border: 1px solid #e8d4bc;
+            animation: pooDayPulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pooDayPulse {
+            0% { box-shadow: 0 0 0 0 rgba(232, 212, 188, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(232, 212, 188, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(232, 212, 188, 0); }
+        }
+
+        .cal-day.has-poo .day-number {
+            color: #8a6a4a;
+        }
+
+        .cal-day.today {
+            background: linear-gradient(135deg, #f5ede3 0%, #f2e8dc 100%);
+            border: 1.5px solid #d4b896;
+            position: relative;
+        }
+
+        .cal-day.today::after {
+            content: '✨';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 12px;
+            animation: sparkle 1.5s infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .cal-day.today .day-number {
+            color: #a07850;
+            font-weight: 600;
+        }
+
+        .cal-day.selected {
+            background: #ffe8d6 !important;
+            border: 2px solid #c8966a !important;
+            box-shadow: 0 0 0 3px rgba(200, 150, 106, 0.1);
+        }
+
+        .cal-day.selected.has-poo {
+            background: #ffe0c8 !important;
+            border: 2px solid #b88858 !important;
+        }
+
+        .record-section {
+            background: #faf6f0;
+            border-radius: 20px;
+            padding: 18px 16px;
+            margin: 6px 0 10px;
+            border: 1px solid #e8e0d4;
+            position: relative;
+        }
+
+        .record-section::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 24px;
+            width: 40px;
+            height: 12px;
+            background: #e8ddd0;
+            border-radius: 2px;
+            opacity: 0.7;
+        }
+
+        .selected-date-title {
+            font-weight: 600;
+            margin-bottom: 14px;
+            font-size: 0.9rem;
+            color: #6a5d50;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            letter-spacing: 0.5px;
+        }
+
+        .poo-types {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 12px 0 10px;
+            justify-content: center;
+        }
+
+        .type-badge {
+            background: linear-gradient(135deg, #fefcf8 0%, #fdf9f3 100%);
+            border: 1px solid #ddd5c8;
+            border-radius: 16px;
+            padding: 8px 18px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.12s ease;
+            font-weight: 500;
+            color: #5a4d40;
+            letter-spacing: 0.3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .type-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .type-badge:hover::before {
+            left: 100%;
+        }
+
+        .type-badge span {
+            font-size: 0.78rem;
+        }
+
+        .type-badge:active {
+            transform: scale(0.96);
+            background: #f5ede3;
+        }
+
+        .type-badge.selected-type-badge {
+            background: linear-gradient(135deg, #fff0e0 0%, #ffebd8 100%);
+            border-color: #d4a878;
+            color: #8a6a4a;
+            box-shadow: 0 2px 8px rgba(212, 168, 120, 0.15);
+        }
+
+        .note-collapse {
+            margin-top: 10px;
+            border-top: 1px solid #e8ddd0;
+            padding-top: 12px;
+        }
+
+        .toggle-note-btn {
+            background: none;
+            border: none;
+            color: #b09878;
+            font-size: 0.7rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            padding: 4px 0;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-note-btn:hover {
+            color: #8a6a4a;
+            transform: translateX(3px);
+        }
+
+        .note-area {
+            width: 100%;
+            border: 1px solid #ddd5c8;
+            background: #fefcf8;
+            border-radius: 16px;
+            padding: 10px 14px;
+            font-family: inherit;
+            font-size: 0.78rem;
+            resize: vertical;
+            margin: 8px 0 6px;
+            outline: none;
+            display: none;
+            color: #5a4d40;
+            line-height: 1.6;
+            transition: all 0.2s ease;
+        }
+
+        .note-area.show {
+            display: block;
+            animation: noteSlideIn 0.3s ease-out;
+        }
+
+        @keyframes noteSlideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .note-area:focus {
+            border-color: #c4a882;
+            box-shadow: 0 0 0 3px rgba(196, 168, 130, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .info-tip {
+            font-size: 0.65rem;
+            color: #c4b5a0;
+            text-align: center;
+            margin-top: 14px;
+            letter-spacing: 0.5px;
+        }
+
+        .current-record-badge {
+            background: linear-gradient(135deg, #f0e5d9 0%, #ede0c9 100%);
+            border-radius: 40px;
+            padding: 4px 12px;
+            font-size: 0.68rem;
+            color: #a07850;
+            letter-spacing: 0.5px;
+            animation: badgeBounce 1s ease-in-out;
+        }
+
+        @keyframes badgeBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 0.6rem;
+            color: #d0c4b4;
+            border-top: 1px solid #e8e0d4;
+            padding-top: 16px;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+        }
+
+        footer:hover {
+            color: #a08868;
+        }
+
+        /* ========== 夸张噗噗特效 ========== */
+        .poop-burst {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            font-size: 3.5rem;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.12));
+            animation: poopFly 0.9s cubic-bezier(0.22, 1.4, 0.36, 1) forwards;
+            will-change: transform, opacity;
+            font-weight: bold;
+        }
+
+        .poop-burst.secondary {
+            font-size: 2rem;
+            animation: poopFlySecondary 0.7s cubic-bezier(0.22, 1.4, 0.36, 1) forwards;
+        }
+
+        .poop-burst.sparkle {
+            font-size: 1.8rem;
+            animation: sparkleFly 0.6s ease-out forwards;
+        }
+
+        @keyframes poopFly {
+            0% {
+                transform: scale(0.1) translate(0, 0) rotate(0deg);
+                opacity: 0;
+            }
+            15% {
+                transform: scale(1.6) translate(0, -20px) rotate(-20deg);
+                opacity: 1;
+            }
+            40% {
+                transform: scale(1.3) translate(0, -50px) rotate(15deg);
+                opacity: 1;
+            }
+            70% {
+                transform: scale(0.8) translate(var(--tx), -90px) rotate(-30deg);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(0) translate(var(--tx2), -140px) rotate(60deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes poopFlySecondary {
+            0% {
+                transform: scale(0.1) translate(0, 0) rotate(0deg);
+                opacity: 0;
+            }
+            20% {
+                transform: scale(1.3) translate(0, -15px) rotate(25deg);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(0.9) translate(var(--tx), -40px) rotate(-15deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(0) translate(var(--tx2), -80px) rotate(45deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes sparkleFly {
+            0% {
+                transform: scale(0) translate(0, 0);
+                opacity: 0;
+            }
+            30% {
+                transform: scale(1.2) translate(var(--tx), -30px);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0) translate(var(--tx2), -70px);
+                opacity: 0;
+            }
+        }
+
+        /* 点击时的按钮反馈 */
+        .cal-day:active {
+            transform: scale(0.92);
+        }
+
+        .type-badge:active {
+            transform: scale(0.92);
+        }
+
+        .report-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.15);
+            backdrop-filter: blur(3px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.15s ease;
+        }
+
+        .report-modal.show {
+            visibility: visible;
+            opacity: 1;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .report-card {
+            background: #fefcf8;
+            max-width: 280px;
+            width: 80%;
+            border-radius: 28px;
+            padding: 28px 22px 26px;
+            text-align: center;
+            border: 1px solid #e0d8cc;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.06);
+            position: relative;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+
+        .report-modal.show .report-card {
+            transform: scale(1);
+        }
+
+        .report-card::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 36px;
+            height: 10px;
+            background: #e0d5c5;
+            border-radius: 2px;
+            opacity: 0.6;
+        }
+
+        .report-card h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #6a5d50;
+            margin-bottom: 18px;
+            letter-spacing: 1px;
+        }
+
+        .report-stats {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin: 12px 0;
+        }
+
+        .report-num {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #c8966a;
+            font-variant-numeric: tabular-nums;
+            animation: numberPop 0.5s ease-out;
+        }
+
+        @keyframes numberPop {
+            0% { transform: scale(0.8); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .report-label {
+            font-size: 0.68rem;
+            color: #b09878;
+            margin-top: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .report-rank {
+            border-top: 1px solid #e8ddd0;
+            padding-top: 14px;
+            margin-top: 14px;
+        }
+
+        .rank-badge-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .rank-badge {
+            background: linear-gradient(135deg, #f5ede3 0%, #f2e8dc 100%);
+            border-radius: 40px;
+            padding: 5px 14px;
+            font-size: 0.72rem;
+            color: #7a6a5a;
+            letter-spacing: 0.3px;
+            border: 1px solid #e8ddd0;
+            transition: transform 0.2s ease;
+        }
+
+        .rank-badge:hover {
+            transform: scale(1.05);
+        }
+
+        .close-report {
+            background: linear-gradient(135deg, #f5ede3 0%, #f2e8dc 100%);
+            border: 1px solid #e0d8cc;
+            border-radius: 40px;
+            padding: 8px 24px;
+            margin-top: 22px;
+            font-size: 0.78rem;
+            color: #7a6a5a;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .close-report::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(200, 150, 106, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s ease, height 0.3s ease;
+        }
+
+        .close-report:active::after {
+            width: 100px;
+            height: 100px;
+        }
+
+        .close-report:active {
+            background: #e8ddd0;
+            transform: scale(0.97);
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            font-size: 0.68rem;
+            color: #c4a090;
+            text-decoration: underline;
+            text-decoration-color: #d8c8b8;
+            cursor: pointer;
+            padding: 4px 8px;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+
+        .delete-btn:hover {
+            color: #a07860;
+            transform: translateX(2px);
+        }
+
+        @media (max-width: 500px) {
+            .journal { padding: 22px 16px 24px; }
+            .cal-day { font-size: 0.72rem; border-radius: 12px; }
+            .poo-marker { font-size: 0.85rem; }
+            .type-badge { padding: 7px 14px; font-size: 0.9rem; }
+            .type-badge span { font-size: 0.72rem; }
+            .poop-burst { font-size: 2.8rem; }
+            .poop-burst.secondary { font-size: 1.6rem; }
+            .poop-burst.sparkle { font-size: 1.4rem; }
+            h1 { font-size: 1.4rem; }
+            .positive-quote { padding: 10px 14px; }
+            .quote-text { font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="journal">
+    <h1>📔 噗噗手账</h1>
+    <div class="sub">✎ 点击噗噗表情 = 立即打卡 · 手账小铺</div>
+    
+    <!-- 正能量语录区域 -->
+    <div class="positive-quote" id="positiveQuote">
+        <div class="quote-text" id="quoteText">加载中... 美好的一天从噗噗开始✨</div>
+        <div class="quote-author" id="quoteAuthor">—— 噗噗小精灵</div>
+    </div>
+
+    <div class="month-header">
+        <div class="month-nav">
+            <button id="prevMonthBtn">◀</button>
+            <span class="current-month" id="currentMonthYear">2026年1月</span>
+            <button id="nextMonthBtn">▶</button>
+        </div>
+        <button id="monthReportBtn" class="report-btn">📊 月报</button>
+    </div>
+
+    <div class="calendar">
+        <div class="weekdays">
+            <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+        </div>
+        <div class="calendar-days" id="calendarDays"></div>
+    </div>
+
+    <div class="record-section" id="recordSection">
+        <div class="selected-date-title" id="selectedDateTitle">
+            📌 点击日历上任一天
+            <span id="hasRecordBadge" class="current-record-badge" style="display:none;">✅ 今日已噗</span>
+        </div>
+        <div id="recordContent">
+            <div class="info-tip">🌸 点击噗噗表情直接打卡，蹦出可爱特效～</div>
+        </div>
+    </div>
+    <footer>💩 一键打卡 · 点击月报看统计 | 数据仅存本地 | 每日正能量加持✨</footer>
+</div>
+
+<div id="reportModal" class="report-modal">
+    <div class="report-card">
+        <h3 id="modalMonthTitle">📆 本月报告</h3>
+        <div class="report-stats">
+            <div class="report-stat"><div class="report-num" id="modalPooDays">0</div><div class="report-label">噗噗天数</div></div>
+            <div class="report-stat"><div class="report-num" id="modalMissDays">0</div><div class="report-label">无噗天数</div></div>
+        </div>
+        <div class="report-rank">
+            <div style="font-size:0.68rem; color:#a5805d; letter-spacing:0.5px;">🏆 噗噗类型排行</div>
+            <div class="rank-badge-list" id="modalRankList">-</div>
+        </div>
+        <button class="close-report" id="closeReportBtn">收下啦 ✨</button>
+    </div>
+</div>
+
+<script>
+    const POO_TYPES = [
+        { emoji: "💩", label: "标准噗", value: "standard" },
+        { emoji: "💧", label: "顺畅噗", value: "smooth" },
+        { emoji: "🪨", label: "费劲噗", value: "hard" },
+        { emoji: "🍂", label: "软噗噗", value: "soft" },
+        { emoji: "🤢", label: "肚子痛", value: "pain" },
+        { emoji: "✨", label: "黄金噗", value: "perfect" }
+    ];
+
+    // 正能量语录库
+    const POSITIVE_QUOTES = [
+        { text: "今天也要好好噗噗，清空烦恼，轻装上阵！", author: "—— 噗噗哲学家" },
+        { text: "每一次顺畅的噗噗，都是身体在说：我超棒的！", author: "—— 肠道小精灵" },
+        { text: "生活就像噗噗，有时候费劲，但结果总是美好的～", author: "—— 人生体验家" },
+        { text: "善待自己的身体，从关注每一次噗噗开始✨", author: "—— 健康守护者" },
+        { text: "即使是费劲噗，也是身体在努力工作的证明！", author: "—— 努力打工人" },
+        { text: "每天都要元气满满，噗噗也要闪闪发光🌟", author: "—— 元气小太阳" },
+        { text: "清空肠道，才能装下更多美好和快乐～", author: "—— 快乐收集者" },
+        { text: "小小的噗噗，大大的满足，今天也是幸福的一天！", author: "—— 幸福体验官" },
+        { text: "规律噗噗，规律生活，做自己身体的主人💪", author: "—— 自律达人" },
+        { text: "不管是黄金噗还是软噗噗，都是独一无二的你呀～", author: "—— 个性代言人" },
+        { text: "噗噗打卡成功！今天的你，又完成了一项重要任务🎉", author: "—— 成就解锁员" },
+        { text: "身体的小信号，要认真倾听，好好照顾自己哦～", author: "—— 暖心小管家" },
+        { text: "每一次噗噗，都是身体在排毒，也是心情在放晴🌞", author: "—— 心情调节师" },
+        { text: "慢慢来，不着急，噗噗如此，人生亦如此～", author: "—— 佛系生活家" },
+        { text: "记录噗噗，记录生活，认真对待每一天的小确幸✨", author: "—— 生活记录员" }
+    ];
+
+    const STORAGE_KEY = "poop_monthly_journal_flat";
+    let records = {};
+    let currentYear = 2026;
+    let currentMonth = 5;
+    let selectedDateStr = "";
+
+    const calendarDaysDiv = document.getElementById("calendarDays");
+    const currentMonthYearSpan = document.getElementById("currentMonthYear");
+    const prevMonthBtn = document.getElementById("prevMonthBtn");
+    const nextMonthBtn = document.getElementById("nextMonthBtn");
+    const recordSectionContent = document.getElementById("recordContent");
+    const selectedDateTitleSpan = document.getElementById("selectedDateTitle");
+    const hasRecordBadge = document.getElementById("hasRecordBadge");
+    const monthReportBtn = document.getElementById("monthReportBtn");
+    const reportModal = document.getElementById("reportModal");
+    const closeReportBtn = document.getElementById("closeReportBtn");
+    const modalMonthTitle = document.getElementById("modalMonthTitle");
+    const modalPooDays = document.getElementById("modalPooDays");
+    const modalMissDays = document.getElementById("modalMissDays");
+    const modalRankList = document.getElementById("modalRankList");
+    
+    // 正能量语录元素
+    const quoteText = document.getElementById("quoteText");
+    const quoteAuthor = document.getElementById("quoteAuthor");
+
+    // ========== 每日正能量语录 ==========
+    function getRandomQuote() {
+        // 根据日期生成固定的随机数种子，确保同一天显示同一句话
+        const today = new Date();
+        const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+        const randomIndex = Math.abs(Math.sin(seed) * 10000) % POSITIVE_QUOTES.length;
+        return POSITIVE_QUOTES[Math.floor(randomIndex)];
+    }
+
+    function displayDailyQuote() {
+        const quote = getRandomQuote();
+        quoteText.textContent = quote.text;
+        quoteAuthor.textContent = quote.author;
+        
+        // 添加打字机效果
+        typeWriterEffect(quoteText, quote.text);
+    }
+
+    // 打字机效果
+    function typeWriterEffect(element, text) {
+        element.textContent = "";
+        let i = 0;
+        const speed = 30;
+        
+        function type() {
+            if (i < text.length) {
+                element.textContent += text.charAt(i);
+                i++;
+                setTimeout(type, speed);
+            }
+        }
+        
+        setTimeout(type, 300);
+    }
+
+    // ========== 夸张噗噗特效系统 ==========
+    function burstPoop(event, customEmoji = "💩") {
+        let clientX, clientY;
+        if (event.touches) {
+            clientX = event.touches[0].clientX;
+            clientY = event.touches[0].clientY;
+        } else {
+            clientX = event.clientX;
+            clientY = event.clientY;
+        }
+
+        // 主噗噗 - 超大
+        const mainEmojis = ["💩", "💩💨", "✨💩", "🎉💩", "💨💩", "💩✨", "🌟💩"];
+        const mainEmoji = customEmoji === "💩" ? mainEmojis[Math.floor(Math.random() * mainEmojis.length)] : customEmoji;
+        
+        createPoopParticle(clientX, clientY, mainEmoji, 'poop-burst', 0, 0);
+
+        // 副噗噗 - 向左右飞散
+        const sideEmojis = ["💩", "💨", "✨", "🌟", "💫"];
+        const sideCount = 2 + Math.floor(Math.random() * 2); // 2-3个
+        for (let i = 0; i < sideCount; i++) {
+            const delay = 50 + i * 80;
+            const direction = i % 2 === 0 ? -1 : 1;
+            const offsetX = direction * (30 + Math.random() * 40);
+            setTimeout(() => {
+                createPoopParticle(
+                    clientX + offsetX * 0.3, 
+                    clientY, 
+                    sideEmojis[Math.floor(Math.random() * sideEmojis.length)], 
+                    'poop-burst secondary',
+                    offsetX,
+                    offsetX * 2
+                );
+            }, delay);
+        }
+
+        // 星星粒子
+        const sparkles = ["✨", "🌟", "💫", "⭐"];
+        const sparkleCount = 3 + Math.floor(Math.random() * 3); // 3-5个
+        for (let i = 0; i < sparkleCount; i++) {
+            const delay = 30 + i * 60;
+            const angle = (Math.PI * 2 * i) / sparkleCount;
+            const distance = 40 + Math.random() * 50;
+            const offsetX = Math.cos(angle) * distance;
+            setTimeout(() => {
+                createPoopParticle(
+                    clientX, 
+                    clientY, 
+                    sparkles[Math.floor(Math.random() * sparkles.length)], 
+                    'poop-burst sparkle',
+                    offsetX,
+                    offsetX * 1.5
+                );
+            }, delay);
+        }
+    }
+
+    function createPoopParticle(x, y, emoji, className, tx, tx2) {
+        const div = document.createElement("div");
+        div.className = className;
+        div.textContent = emoji;
+        div.style.left = (x - 30) + "px";
+        div.style.top = (y - 30) + "px";
+        div.style.setProperty('--tx', tx + 'px');
+        div.style.setProperty('--tx2', tx2 + 'px');
+        document.body.appendChild(div);
+        
+        const duration = className.includes('sparkle') ? 600 : className.includes('secondary') ? 700 : 900;
+        setTimeout(() => div.remove(), duration);
+    }
+
+    function formatDateToYMD(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    function loadRecords() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            try { records = JSON.parse(stored); } catch(e) { records = {}; }
+        } else { records = {}; }
+    }
+    function saveRecords() { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); }
+    function getRecordByDate(dateStr) { return records[dateStr] || null; }
+
+    function getCurrentMonthStats() {
+        const year = currentYear;
+        const month = currentMonth;
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        let pooCount = 0;
+        let typeCountMap = new Map();
+        for (let d = 1; d <= daysInMonth; d++) {
+            const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const rec = records[dateStr];
+            if (rec) {
+                pooCount++;
+                const typeVal = rec.typeValue;
+                typeCountMap.set(typeVal, (typeCountMap.get(typeVal) || 0) + 1);
+            }
+        }
+        const missCount = daysInMonth - pooCount;
+        const sorted = Array.from(typeCountMap.entries()).sort((a,b) => b[1] - a[1]);
+        return { pooCount, missCount, totalDays: daysInMonth, rank: sorted };
+    }
+
+    function showMonthlyReport() {
+        const { pooCount, missCount, rank } = getCurrentMonthStats();
+        const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+        modalMonthTitle.innerText = `${currentYear}年 ${monthNames[currentMonth]} 噗噗小结`;
+        modalPooDays.innerText = pooCount;
+        modalMissDays.innerText = missCount;
+        
+        // 添加数字增长动画
+        animateNumber(modalPooDays, 0, pooCount, 1000);
+        animateNumber(modalMissDays, 0, missCount, 1000);
+        
+        if (rank.length === 0) {
+            modalRankList.innerHTML = '<span style="font-size:0.68rem; color:#b38f67; letter-spacing:0.5px;">✨ 这个月还没记录～ 点击噗噗轻松记录吧</span>';
+        } else {
+            let html = '';
+            for (let [typeVal, cnt] of rank) {
+                const typeInfo = POO_TYPES.find(t => t.value === typeVal);
+                if (typeInfo) {
+                    html += `<div class="rank-badge">${typeInfo.emoji} ${typeInfo.label} x${cnt}</div>`;
+                }
+            }
+            modalRankList.innerHTML = html;
+        }
+        reportModal.classList.add('show');
+    }
+
+    // 数字增长动画
+    function animateNumber(element, start, end, duration) {
+        let startTime = null;
+        element.innerText = start;
+        
+        function animate(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const progress = Math.min((timestamp - startTime) / duration, 1);
+            const current = Math.floor(progress * (end - start) + start);
+            element.innerText = current;
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        }
+        
+        requestAnimationFrame(animate);
+    }
+
+    function closeModal() { reportModal.classList.remove('show'); }
+
+    function clearSelectedStyle() {
+        document.querySelectorAll('.cal-day').forEach(day => day.classList.remove('selected'));
+    }
+    function highlightSelectedDate(dateStr) {
+        clearSelectedStyle();
+        if (!dateStr) return;
+        const targetCell = document.querySelector(`.cal-day[data-date='${dateStr}']`);
+        if (targetCell) targetCell.classList.add('selected');
+    }
+
+    function quickCheckin(dateStr, typeObj, event, optionalNote = "") {
+        if (event) burstPoop(event, typeObj.emoji);
+        let finalNote = optionalNote;
+        if (!finalNote && document.getElementById("floatingNoteInput")) {
+            finalNote = document.getElementById("floatingNoteInput").value;
+        }
+        records[dateStr] = {
+            typeValue: typeObj.value,
+            typeEmoji: typeObj.emoji,
+            typeLabel: typeObj.label,
+            note: finalNote?.trim() || "",
+            updatedAt: Date.now()
+        };
+        saveRecords();
+        renderCalendar();
+        highlightSelectedDate(selectedDateStr);
+        if (selectedDateStr === dateStr) renderQuickCheckinUI(dateStr);
+        const targetDayElem = document.querySelector(`.cal-day[data-date='${dateStr}']`);
+        if (targetDayElem) {
+            targetDayElem.classList.add('has-poo');
+            targetDayElem.style.transform = "scale(0.95)";
+            setTimeout(() => { if (targetDayElem) targetDayElem.style.transform = ""; }, 200);
+        }
+        
+        // 随机彩蛋：有时候会出现特别的鼓励语
+        if (Math.random() > 0.7) {
+            showRandomEncouragement();
+        }
+    }
+
+    // 随机鼓励语弹窗
+    function showRandomEncouragement() {
+        const encouragements = [
+            "🎉 噗噗成功！今天也是健康的一天～",
+            "✨ 黄金噗！你也太优秀了吧～",
+            "💪 规律噗噗，健康生活！",
+            "🌟 完美打卡！给自己点个赞～",
+            "🥳 清空烦恼，轻装上阵！"
+        ];
+        
+        const encouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
+        
+        const toast = document.createElement("div");
+        toast.style.position = "fixed";
+        toast.style.bottom = "30px";
+        toast.style.left = "50%";
+        toast.style.transform = "translateX(-50%)";
+        toast.style.background = "rgba(255, 252, 248, 0.95)";
+        toast.style.border = "1px solid #d4b896";
+        toast.style.borderRadius = "20px";
+        toast.style.padding = "10px 20px";
+        toast.style.fontSize = "0.8rem";
+        toast.style.color = "#8a6a4a";
+        toast.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+        toast.style.zIndex = "9999";
+        toast.style.animation = "toastSlideUp 0.3s ease-out, toastFadeOut 0.3s ease-in 2s forwards";
+        toast.textContent = encouragement;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 2500);
+    }
+
+    function deleteCheckin(dateStr, event) {
+        if (!records[dateStr]) return;
+        if (event) burstPoop(event, "💩❌");
+        delete records[dateStr];
+        saveRecords();
+        renderCalendar();
+        highlightSelectedDate(selectedDateStr);
+        if (selectedDateStr === dateStr) renderQuickCheckinUI(dateStr);
+    }
+
+    function renderQuickCheckinUI(dateStr) {
+        if (!dateStr) {
+            recordSectionContent.innerHTML = `<div class="info-tip">📅 点击日历上任一天，点击噗噗直接打卡～</div>`;
+            selectedDateTitleSpan.innerHTML = `📌 点击日历上任一天`;
+            if (hasRecordBadge) hasRecordBadge.style.display = "none";
+            return;
+        }
+        const [year, month, day] = dateStr.split('-');
+        const existing = getRecordByDate(dateStr);
+        if (existing) {
+            selectedDateTitleSpan.innerHTML = `📌 ${year}年${parseInt(month)}月${parseInt(day)}日  <span style="background:#f0e5d9; border-radius:40px; padding:4px 12px; font-size:0.68rem; letter-spacing:0.5px;">🎉 已打卡 ${existing.typeEmoji} ${existing.typeLabel}</span>`;
+            if (hasRecordBadge) hasRecordBadge.style.display = "inline-flex";
+        } else {
+            selectedDateTitleSpan.innerHTML = `📌 ${year}年${parseInt(month)}月${parseInt(day)}日`;
+            if (hasRecordBadge) hasRecordBadge.style.display = "none";
+        }
+        let typesHtml = `<div class="poo-types" id="directPooTypes">`;
+        POO_TYPES.forEach((type) => {
+            const isActive = (existing && existing.typeValue === type.value);
+            const activeClass = isActive ? 'selected-type-badge' : '';
+            typesHtml += `<div class="type-badge ${activeClass}" data-type-val="${type.value}" data-type-emoji="${type.emoji}" data-type-label="${type.label}">${type.emoji} <span>${type.label}</span></div>`;
+        });
+        typesHtml += `</div>`;
+        let currentNote = existing ? (existing.note || "") : "";
+        typesHtml += `<div class="note-collapse">
+                        <button id="toggleNoteBtn" class="toggle-note-btn">📝 ${currentNote ? "编辑备注" : "添加备注"} (可选)</button>
+                        <textarea id="floatingNoteInput" class="note-area ${currentNote ? 'show' : ''}" rows="2" placeholder="写点小备注～">${escapeHtml(currentNote)}</textarea>
+                      </div>`;
+        typesHtml += `<div class="info-tip">💡 直接点击噗噗 = 打卡！手账轻便 ✨</div>`;
+        recordSectionContent.innerHTML = typesHtml;
+
+        const typeBadges = document.querySelectorAll('#directPooTypes .type-badge');
+        typeBadges.forEach(badge => {
+            const typeVal = badge.getAttribute('data-type-val');
+            const typeObj = POO_TYPES.find(t => t.value === typeVal);
+            if (!typeObj) return;
+            const clickHandler = (e) => {
+                e.stopPropagation();
+                const noteArea = document.getElementById("floatingNoteInput");
+                let noteText = noteArea ? noteArea.value : "";
+                quickCheckin(dateStr, typeObj, e, noteText);
+            };
+            badge.removeEventListener('click', clickHandler);
+            badge.addEventListener('click', clickHandler);
+            badge.addEventListener('touchstart', clickHandler);
+        });
+
+        const toggleBtn = document.getElementById("toggleNoteBtn");
+        const noteInput = document.getElementById("floatingNoteInput");
+        if (toggleBtn && noteInput) {
+            const newToggleHandler = () => {
+                noteInput.classList.toggle('show');
+                toggleBtn.innerHTML = noteInput.classList.contains('show') ? "📝 收起备注" : "📝 添加备注 (可选)";
+            };
+            toggleBtn.removeEventListener('click', newToggleHandler);
+            toggleBtn.addEventListener('click', newToggleHandler);
+            const saveNoteIfRecord = () => {
+                const rec = getRecordByDate(dateStr);
+                if (rec && noteInput && rec.note !== noteInput.value) {
+                    rec.note = noteInput.value.trim() || "";
+                    records[dateStr] = rec;
+                    saveRecords();
+                }
+            };
+            noteInput.removeEventListener('blur', saveNoteIfRecord);
+            noteInput.addEventListener('blur', saveNoteIfRecord);
+            if (existing && currentNote !== noteInput.value) noteInput.value = existing.note || "";
+        }
+        if (existing) {
+            const delDiv = document.createElement("div");
+            delDiv.style.marginTop = "10px";
+            delDiv.style.textAlign = "right";
+            const delBtn = document.createElement("button");
+            delBtn.className = "delete-btn";
+            delBtn.innerText = "🗑️ 删除今日噗噗记录";
+            delBtn.addEventListener('click', (e) => { e.stopPropagation(); if(confirm("删除记录？")) deleteCheckin(dateStr, e); });
+            delDiv.appendChild(delBtn);
+            recordSectionContent.appendChild(delDiv);
+        }
+    }
+
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+
+    function renderCalendar() {
+        const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+        const startWeekday = firstDayOfMonth.getDay();
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        let html = ""; let day = 1;
+        const todayYMD = formatDateToYMD(new Date());
+        for (let i = 0; i < 42; i++) {
+            if (i < startWeekday || day > daysInMonth) { html += `<div class="cal-day empty"></div>`; continue; }
+            const dateYMD = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+            const rec = getRecordByDate(dateYMD);
+            const hasPoo = !!rec;
+            let cls = "cal-day";
+            if (hasPoo) cls += " has-poo";
+            if (todayYMD === dateYMD) cls += " today";
+            const marker = hasPoo ? `<div class="poo-marker">${rec.typeEmoji}</div>` : `<div class="poo-marker" style="opacity:0.15">⚪</div>`;
+            html += `<div class="${cls}" data-date="${dateYMD}"><div class="day-number">${day}</div>${marker}</div>`;
+            day++;
+        }
+        calendarDaysDiv.innerHTML = html;
+        document.querySelectorAll('.cal-day[data-date]').forEach(el => {
+            const handler = (e) => { burstPoop(e, "💩"); const ds = el.getAttribute('data-date'); if(ds) { selectedDateStr = ds; highlightSelectedDate(selectedDateStr); renderQuickCheckinUI(selectedDateStr); } };
+            el.removeEventListener('click', handler); el.addEventListener('click', handler);
+            el.removeEventListener('touchstart', handler); el.addEventListener('touchstart', handler);
+        });
+        if (selectedDateStr) highlightSelectedDate(selectedDateStr);
+        const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+        currentMonthYearSpan.innerText = `${currentYear}年 ${monthNames[currentMonth]}`;
+    }
+
+    function changeMonth(delta) {
+        let nm = currentMonth + delta, ny = currentYear;
+        if (nm < 0) { nm = 11; ny--; } else if (nm > 11) { nm = 0; ny++; }
+        currentYear = ny; currentMonth = nm;
+        renderCalendar();
+        if (selectedDateStr) {
+            const [y,m] = selectedDateStr.split('-');
+            if (parseInt(y) !== currentYear || parseInt(m)-1 !== currentMonth) { selectedDateStr = ""; renderQuickCheckinUI(null); clearSelectedStyle(); }
+            else { highlightSelectedDate(selectedDateStr); renderQuickCheckinUI(selectedDateStr); }
+        }
+    }
+
+    function init() {
+        const today = new Date();
+        currentYear = today.getFullYear();
+        currentMonth = today.getMonth();
+        loadRecords();
+        renderCalendar();
+        const todayStr = formatDateToYMD(today);
+        selectedDateStr = todayStr;
+        highlightSelectedDate(selectedDateStr);
+        renderQuickCheckinUI(selectedDateStr);
+        prevMonthBtn.onclick = (e) => { burstPoop(e, "💩"); changeMonth(-1); };
+        nextMonthBtn.onclick = (e) => { burstPoop(e, "💩"); changeMonth(1); };
+        monthReportBtn.onclick = (e) => { burstPoop(e, "📊"); showMonthlyReport(); };
+        closeReportBtn.onclick = () => { closeModal(); };
+        reportModal.addEventListener('click', (e) => { if(e.target === reportModal) closeModal(); });
+        
+        // 显示每日正能量语录
+        displayDailyQuote();
+        
+        // 添加页面载入动画
+        document.querySelector('.journal').style.opacity = '0';
+        document.querySelector('.journal').style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            document.querySelector('.journal').style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+            document.querySelector('.journal').style.opacity = '1';
+            document.querySelector('.journal').style.transform = 'translateY(0)';
+        }, 100);
+    }
+    
+    // 添加CSS动画
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes toastSlideUp {
+            from { transform: translateX(-50%) translateY(20px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+        @keyframes toastFadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    init();
+</script>
+</body>
+</html>
