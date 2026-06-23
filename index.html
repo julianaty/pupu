@@ -1,1390 +1,2071 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>噗噗手账 · 月历 | 每日好心情✨</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background: linear-gradient(135deg, #f5f0e8 0%, #f9f4ed 100%);
-            font-family: 'PingFang SC', 'Noto Sans SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
-            padding: 20px 16px 48px;
-            color: #3d3229;
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        /* 背景装饰元素 */
-        body::before, body::after {
-            content: '💩';
-            position: fixed;
-            font-size: 120px;
-            opacity: 0.02;
-            z-index: -1;
-            transform: rotate(15deg);
-        }
-        
-        body::before {
-            top: 10%;
-            right: -50px;
-        }
-        
-        body::after {
-            bottom: 10%;
-            left: -50px;
-        }
-
-        .journal {
-            max-width: 620px;
-            margin: 0 auto;
-            background: #fefcf8;
-            border-radius: 24px;
-            padding: 28px 22px 32px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.02);
-            border: 1px solid #e8e0d4;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.3s ease;
-        }
-
-        .journal:hover {
-            transform: translateY(-2px);
-        }
-
-        .journal::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 8px;
-            background: #e0d5c5;
-            border-radius: 0 0 8px 8px;
-            opacity: 0.6;
-        }
-
-        /* 正能量语录样式 */
-        .positive-quote {
-            background: linear-gradient(120deg, #fff9f0 0%, #fff4e3 100%);
-            border: 1px solid #f0e0cc;
-            border-radius: 16px;
-            padding: 12px 16px;
-            margin: 12px 0 20px;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-            animation: quoteFadeIn 0.8s ease-out;
-        }
-
-        @keyframes quoteFadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .quote-text {
-            font-size: 0.85rem;
-            color: #8a6a4a;
-            line-height: 1.6;
-            letter-spacing: 0.5px;
-            font-weight: 500;
-        }
-
-        .quote-author {
-            font-size: 0.65rem;
-            color: #b59a78;
-            margin-top: 6px;
-            letter-spacing: 1px;
-            font-style: italic;
-        }
-
-        h1 {
-            font-size: 1.6rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-            color: #4a3f35;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 4px;
-            animation: titlePop 0.5s ease-out;
-        }
-
-        @keyframes titlePop {
-            0% { transform: scale(0.9); opacity: 0; }
-            70% { transform: scale(1.05); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .sub {
-            font-size: 0.72rem;
-            color: #b5a590;
-            padding-left: 0;
-            margin: 6px 0 10px 0;
-            letter-spacing: 0.5px;
-        }
-
-        .month-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #faf6f0;
-            border-radius: 16px;
-            padding: 8px 10px 8px 16px;
-            margin: 8px 0 20px;
-            border: 1px solid #e8e0d4;
-            position: relative;
-        }
-
-        .month-nav {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .month-nav button {
-            background: #fefcf8;
-            border: 1px solid #ddd5c8;
-            font-size: 1rem;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            cursor: pointer;
-            color: #8a7a6a;
-            transition: all 0.15s ease;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .month-nav button::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(200, 150, 106, 0.1);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.3s ease, height 0.3s ease;
-        }
-
-        .month-nav button:active::after {
-            width: 100px;
-            height: 100px;
-        }
-
-        .month-nav button:active {
-            background: #f0e8dc;
-            transform: scale(0.95);
-        }
-
-        .current-month {
-            font-size: 1.05rem;
-            font-weight: 600;
-            color: #5a4d40;
-            letter-spacing: 1px;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .report-btn {
-            background: #fefcf8;
-            border: 1px solid #ddd5c8;
-            border-radius: 14px;
-            padding: 7px 16px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: #8a7a6a;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            letter-spacing: 0.5px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .report-btn::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(200, 150, 106, 0.1);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.3s ease, height 0.3s ease;
-        }
-
-        .report-btn:active::after {
-            width: 100px;
-            height: 100px;
-        }
-
-        .report-btn:active {
-            background: #f0e8dc;
-            transform: scale(0.97);
-        }
-
-        .calendar {
-            background: #fefcf8;
-            border-radius: 20px;
-            padding: 12px 8px 16px;
-            margin-bottom: 20px;
-            border: 1px solid #ece5d8;
-        }
-
-        .weekdays {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            text-align: center;
-            margin-bottom: 10px;
-            font-weight: 500;
-            color: #c4b5a0;
-            font-size: 0.7rem;
-            letter-spacing: 1px;
-        }
-
-        .calendar-days {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-        }
-
-        .cal-day {
-            aspect-ratio: 1 / 1;
-            background: #faf7f2;
-            border-radius: 14px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: #5a4d40;
-            border: 1px solid #ece5d8;
-            transition: all 0.15s ease;
-            cursor: pointer;
-            padding: 4px 2px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* 日历格子悬停效果 */
-        .cal-day:not(.empty):hover {
-            transform: scale(1.05);
-            box-shadow: 0 2px 8px rgba(200, 150, 106, 0.1);
-        }
-
-        .cal-day.empty {
-            background: #f5f1eb;
-            border: 1px dashed #e0d8cc;
-            cursor: default;
-            opacity: 0.5;
-        }
-
-        .day-number {
-            font-size: 0.78rem;
-            font-weight: 500;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .poo-marker {
-            font-size: 1rem;
-            margin-top: 1px;
-            line-height: 1;
-            transition: transform 0.2s ease;
-        }
-
-        .cal-day:hover .poo-marker {
-            transform: scale(1.1);
-        }
-
-        .cal-day.has-poo {
-            background: linear-gradient(135deg, #fdf2e6 0%, #fcf0e3 100%);
-            border: 1px solid #e8d4bc;
-            animation: pooDayPulse 2s infinite ease-in-out;
-        }
-
-        @keyframes pooDayPulse {
-            0% { box-shadow: 0 0 0 0 rgba(232, 212, 188, 0.4); }
-            70% { box-shadow: 0 0 0 6px rgba(232, 212, 188, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(232, 212, 188, 0); }
-        }
-
-        .cal-day.has-poo .day-number {
-            color: #8a6a4a;
-        }
-
-        .cal-day.today {
-            background: linear-gradient(135deg, #f5ede3 0%, #f2e8dc 100%);
-            border: 1.5px solid #d4b896;
-            position: relative;
-        }
-
-        .cal-day.today::after {
-            content: '✨';
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            font-size: 12px;
-            animation: sparkle 1.5s infinite;
-        }
-
-        @keyframes sparkle {
-            0%, 100% { opacity: 0.8; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.2); }
-        }
-
-        .cal-day.today .day-number {
-            color: #a07850;
-            font-weight: 600;
-        }
-
-        .cal-day.selected {
-            background: #ffe8d6 !important;
-            border: 2px solid #c8966a !important;
-            box-shadow: 0 0 0 3px rgba(200, 150, 106, 0.1);
-        }
-
-        .cal-day.selected.has-poo {
-            background: #ffe0c8 !important;
-            border: 2px solid #b88858 !important;
-        }
-
-        .record-section {
-            background: #faf6f0;
-            border-radius: 20px;
-            padding: 18px 16px;
-            margin: 6px 0 10px;
-            border: 1px solid #e8e0d4;
-            position: relative;
-        }
-
-        .record-section::before {
-            content: '';
-            position: absolute;
-            top: -6px;
-            left: 24px;
-            width: 40px;
-            height: 12px;
-            background: #e8ddd0;
-            border-radius: 2px;
-            opacity: 0.7;
-        }
-
-        .selected-date-title {
-            font-weight: 600;
-            margin-bottom: 14px;
-            font-size: 0.9rem;
-            color: #6a5d50;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            letter-spacing: 0.5px;
-        }
-
-        .poo-types {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 12px 0 10px;
-            justify-content: center;
-        }
-
-        .type-badge {
-            background: linear-gradient(135deg, #fefcf8 0%, #fdf9f3 100%);
-            border: 1px solid #ddd5c8;
-            border-radius: 16px;
-            padding: 8px 18px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.12s ease;
-            font-weight: 500;
-            color: #5a4d40;
-            letter-spacing: 0.3px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .type-badge::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .type-badge:hover::before {
-            left: 100%;
-        }
-
-        .type-badge span {
-            font-size: 0.78rem;
-        }
-
-        .type-badge:active {
-            transform: scale(0.96);
-            background: #f5ede3;
-        }
-
-        .type-badge.selected-type-badge {
-            background: linear-gradient(135deg, #fff0e0 0%, #ffebd8 100%);
-            border-color: #d4a878;
-            color: #8a6a4a;
-            box-shadow: 0 2px 8px rgba(212, 168, 120, 0.15);
-        }
-
-        .note-collapse {
-            margin-top: 10px;
-            border-top: 1px solid #e8ddd0;
-            padding-top: 12px;
-        }
-
-        .toggle-note-btn {
-            background: none;
-            border: none;
-            color: #b09878;
-            font-size: 0.7rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-            padding: 4px 0;
-            letter-spacing: 0.5px;
-            transition: all 0.2s ease;
-        }
-
-        .toggle-note-btn:hover {
-            color: #8a6a4a;
-            transform: translateX(3px);
-        }
-
-        .note-area {
-            width: 100%;
-            border: 1px solid #ddd5c8;
-            background: #fefcf8;
-            border-radius: 16px;
-            padding: 10px 14px;
-            font-family: inherit;
-            font-size: 0.78rem;
-            resize: vertical;
-            margin: 8px 0 6px;
-            outline: none;
-            display: none;
-            color: #5a4d40;
-            line-height: 1.6;
-            transition: all 0.2s ease;
-        }
-
-        .note-area.show {
-            display: block;
-            animation: noteSlideIn 0.3s ease-out;
-        }
-
-        @keyframes noteSlideIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .note-area:focus {
-            border-color: #c4a882;
-            box-shadow: 0 0 0 3px rgba(196, 168, 130, 0.08);
-            transform: translateY(-2px);
-        }
-
-        .info-tip {
-            font-size: 0.65rem;
-            color: #c4b5a0;
-            text-align: center;
-            margin-top: 14px;
-            letter-spacing: 0.5px;
-        }
-
-        .current-record-badge {
-            background: linear-gradient(135deg, #f0e5d9 0%, #ede0c9 100%);
-            border-radius: 40px;
-            padding: 4px 12px;
-            font-size: 0.68rem;
-            color: #a07850;
-            letter-spacing: 0.5px;
-            animation: badgeBounce 1s ease-in-out;
-        }
-
-        @keyframes badgeBounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 24px;
-            font-size: 0.6rem;
-            color: #d0c4b4;
-            border-top: 1px solid #e8e0d4;
-            padding-top: 16px;
-            letter-spacing: 1px;
-            transition: color 0.3s ease;
-        }
-
-        footer:hover {
-            color: #a08868;
-        }
-
-        /* ========== 夸张噗噗特效 ========== */
-        .poop-burst {
-            position: fixed;
-            pointer-events: none;
-            z-index: 9999;
-            font-size: 3.5rem;
-            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.12));
-            animation: poopFly 0.9s cubic-bezier(0.22, 1.4, 0.36, 1) forwards;
-            will-change: transform, opacity;
-            font-weight: bold;
-        }
-
-        .poop-burst.secondary {
-            font-size: 2rem;
-            animation: poopFlySecondary 0.7s cubic-bezier(0.22, 1.4, 0.36, 1) forwards;
-        }
-
-        .poop-burst.sparkle {
-            font-size: 1.8rem;
-            animation: sparkleFly 0.6s ease-out forwards;
-        }
-
-        @keyframes poopFly {
-            0% {
-                transform: scale(0.1) translate(0, 0) rotate(0deg);
-                opacity: 0;
-            }
-            15% {
-                transform: scale(1.6) translate(0, -20px) rotate(-20deg);
-                opacity: 1;
-            }
-            40% {
-                transform: scale(1.3) translate(0, -50px) rotate(15deg);
-                opacity: 1;
-            }
-            70% {
-                transform: scale(0.8) translate(var(--tx), -90px) rotate(-30deg);
-                opacity: 0.7;
-            }
-            100% {
-                transform: scale(0) translate(var(--tx2), -140px) rotate(60deg);
-                opacity: 0;
-            }
-        }
-
-        @keyframes poopFlySecondary {
-            0% {
-                transform: scale(0.1) translate(0, 0) rotate(0deg);
-                opacity: 0;
-            }
-            20% {
-                transform: scale(1.3) translate(0, -15px) rotate(25deg);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(0.9) translate(var(--tx), -40px) rotate(-15deg);
-                opacity: 0.8;
-            }
-            100% {
-                transform: scale(0) translate(var(--tx2), -80px) rotate(45deg);
-                opacity: 0;
-            }
-        }
-
-        @keyframes sparkleFly {
-            0% {
-                transform: scale(0) translate(0, 0);
-                opacity: 0;
-            }
-            30% {
-                transform: scale(1.2) translate(var(--tx), -30px);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(0) translate(var(--tx2), -70px);
-                opacity: 0;
-            }
-        }
-
-        /* 点击时的按钮反馈 */
-        .cal-day:active {
-            transform: scale(0.92);
-        }
-
-        .type-badge:active {
-            transform: scale(0.92);
-        }
-
-        .report-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.15);
-            backdrop-filter: blur(3px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            visibility: hidden;
-            opacity: 0;
-            transition: 0.15s ease;
-        }
-
-        .report-modal.show {
-            visibility: visible;
-            opacity: 1;
-            animation: modalFadeIn 0.3s ease-out;
-        }
-
-        @keyframes modalFadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .report-card {
-            background: #fefcf8;
-            max-width: 280px;
-            width: 80%;
-            border-radius: 28px;
-            padding: 28px 22px 26px;
-            text-align: center;
-            border: 1px solid #e0d8cc;
-            box-shadow: 0 12px 32px rgba(0,0,0,0.06);
-            position: relative;
-            transform: scale(0.95);
-            transition: transform 0.3s ease;
-        }
-
-        .report-modal.show .report-card {
-            transform: scale(1);
-        }
-
-        .report-card::before {
-            content: '';
-            position: absolute;
-            top: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 36px;
-            height: 10px;
-            background: #e0d5c5;
-            border-radius: 2px;
-            opacity: 0.6;
-        }
-
-        .report-card h3 {
-            font-size: 1.15rem;
-            font-weight: 600;
-            color: #6a5d50;
-            margin-bottom: 18px;
-            letter-spacing: 1px;
-        }
-
-        .report-stats {
-            display: flex;
-            justify-content: center;
-            gap: 32px;
-            margin: 12px 0;
-        }
-
-        .report-num {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #c8966a;
-            font-variant-numeric: tabular-nums;
-            animation: numberPop 0.5s ease-out;
-        }
-
-        @keyframes numberPop {
-            0% { transform: scale(0.8); opacity: 0; }
-            70% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .report-label {
-            font-size: 0.68rem;
-            color: #b09878;
-            margin-top: 4px;
-            letter-spacing: 0.5px;
-        }
-
-        .report-rank {
-            border-top: 1px solid #e8ddd0;
-            padding-top: 14px;
-            margin-top: 14px;
-        }
-
-        .rank-badge-list {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .rank-badge {
-            background: linear-gradient(135deg, #f5ede3 0%, #f2e8dc 100%);
-            border-radius: 40px;
-            padding: 5px 14px;
-            font-size: 0.72rem;
-            color: #7a6a5a;
-            letter-spacing: 0.3px;
-            border: 1px solid #e8ddd0;
-            transition: transform 0.2s ease;
-        }
-
-        .rank-badge:hover {
-            transform: scale(1.05);
-        }
-
-        .close-report {
-            background: linear-gradient(135deg, #f5ede3 0%, #f2e8dc 100%);
-            border: 1px solid #e0d8cc;
-            border-radius: 40px;
-            padding: 8px 24px;
-            margin-top: 22px;
-            font-size: 0.78rem;
-            color: #7a6a5a;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .close-report::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(200, 150, 106, 0.1);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.3s ease, height 0.3s ease;
-        }
-
-        .close-report:active::after {
-            width: 100px;
-            height: 100px;
-        }
-
-        .close-report:active {
-            background: #e8ddd0;
-            transform: scale(0.97);
-        }
-
-        .delete-btn {
-            background: none;
-            border: none;
-            font-size: 0.68rem;
-            color: #c4a090;
-            text-decoration: underline;
-            text-decoration-color: #d8c8b8;
-            cursor: pointer;
-            padding: 4px 8px;
-            letter-spacing: 0.5px;
-            transition: all 0.2s ease;
-        }
-
-        .delete-btn:hover {
-            color: #a07860;
-            transform: translateX(2px);
-        }
-
-        @media (max-width: 500px) {
-            .journal { padding: 22px 16px 24px; }
-            .cal-day { font-size: 0.72rem; border-radius: 12px; }
-            .poo-marker { font-size: 0.85rem; }
-            .type-badge { padding: 7px 14px; font-size: 0.9rem; }
-            .type-badge span { font-size: 0.72rem; }
-            .poop-burst { font-size: 2.8rem; }
-            .poop-burst.secondary { font-size: 1.6rem; }
-            .poop-burst.sparkle { font-size: 1.4rem; }
-            h1 { font-size: 1.4rem; }
-            .positive-quote { padding: 10px 14px; }
-            .quote-text { font-size: 0.8rem; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=yes" />
+  <meta name="theme-color" content="#fff8f2" />
+  <title>噗噗手账 · 月报分享图版</title>
+  <style>
+    :root {
+      --paper: #fffdf9;
+      --paper-2: #fff8f2;
+      --ink: #493c34;
+      --muted: #9d8b7d;
+      --line: #eadfd5;
+      --peach: #e9aa7e;
+      --peach-soft: #fff0e4;
+      --brown: #a77452;
+      --pink: #eaa2b5;
+      --pink-soft: #fff0f4;
+      --shadow: 0 18px 50px rgba(112, 79, 57, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html { color-scheme: light; }
+
+    body {
+      min-height: 100vh;
+      padding: max(18px, env(safe-area-inset-top)) 14px max(44px, env(safe-area-inset-bottom));
+      overflow-x: hidden;
+      color: var(--ink);
+      font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      background:
+        radial-gradient(circle at 8% 8%, rgba(255, 208, 177, 0.45), transparent 26%),
+        radial-gradient(circle at 92% 16%, rgba(250, 193, 210, 0.30), transparent 24%),
+        linear-gradient(145deg, #f8f0e8 0%, #fff9f4 55%, #f9eee7 100%);
+    }
+
+    button, textarea { font: inherit; }
+    button { touch-action: manipulation; }
+
+    .app-shell {
+      width: min(100%, 680px);
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .journal {
+      position: relative;
+      overflow: hidden;
+      padding: 25px 20px 28px;
+      border: 1px solid rgba(218, 201, 187, 0.82);
+      border-radius: 30px;
+      background: rgba(255, 253, 249, 0.94);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .journal::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 9px;
+      background: linear-gradient(90deg, #efbf9b, #f4c4cf, #f0c7a9);
+      opacity: 0.9;
+    }
+
+    .journal::after {
+      content: "💩";
+      position: absolute;
+      right: -30px;
+      top: 78px;
+      font-size: 118px;
+      opacity: 0.025;
+      transform: rotate(14deg);
+      pointer-events: none;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 4px;
+    }
+
+    h1 {
+      font-size: clamp(1.45rem, 5vw, 1.85rem);
+      line-height: 1.25;
+      letter-spacing: 0.04em;
+    }
+
+    .subtitle {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.6;
+    }
+
+    .today-mini {
+      flex: 0 0 auto;
+      padding: 7px 11px;
+      border: 1px solid #efd8c7;
+      border-radius: 999px;
+      background: #fff7ef;
+      color: #a16f4c;
+      font-size: 0.69rem;
+      white-space: nowrap;
+    }
+
+    .quote-card {
+      margin: 17px 0 18px;
+      padding: 13px 16px;
+      border: 1px solid #f0ded0;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #fffaf4, #fff3e8);
+      box-shadow: 0 6px 20px rgba(167, 116, 82, 0.06);
+    }
+
+    .quote-text {
+      color: #89664e;
+      font-size: 0.82rem;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    .quote-author {
+      margin-top: 5px;
+      color: #b69c88;
+      font-size: 0.65rem;
+      text-align: right;
+    }
+
+    .month-toolbar {
+      display: grid;
+      grid-template-columns: 38px 1fr 38px auto auto;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 14px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fbf6f0;
+    }
+
+    .icon-btn, .report-btn, .soft-btn, .danger-btn, .period-btn, .type-btn {
+      border: 0;
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+    }
+
+    .icon-btn:active, .report-btn:active, .soft-btn:active, .danger-btn:active, .period-btn:active, .type-btn:active {
+      transform: scale(0.96);
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border: 1px solid #e5d7cb;
+      border-radius: 13px;
+      background: #fffdf9;
+      color: #8b7666;
+      font-size: 0.9rem;
+    }
+
+    .month-title {
+      text-align: center;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.08em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .report-btn {
+      height: 38px;
+      padding: 0 13px;
+      border: 1px solid #e5d7cb;
+      border-radius: 13px;
+      background: #fffdf9;
+      color: #856e5f;
+      font-size: 0.74rem;
+      white-space: nowrap;
+    }
+
+    .calendar-card {
+      padding: 12px 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255,255,255,0.64);
+    }
+
+    .weekdays, .calendar-days {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+
+    .weekdays {
+      margin-bottom: 8px;
+      color: #ad9b8e;
+      font-size: 0.68rem;
+      text-align: center;
+    }
+
+    .calendar-days { gap: 5px; }
+
+    .cal-day {
+      position: relative;
+      aspect-ratio: 1 / 1.08;
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid #eee5dd;
+      border-radius: 14px;
+      background: #fcf9f5;
+      color: #68584d;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .cal-day:not(.empty):hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 15px rgba(138, 100, 74, 0.08);
+    }
+
+    .cal-day.empty {
+      border-style: dashed;
+      background: #faf7f3;
+      opacity: 0.42;
+      cursor: default;
+    }
+
+    .cal-day.selected {
+      border-color: var(--peach);
+      background: #fff4ea;
+      box-shadow: 0 0 0 3px rgba(233, 170, 126, 0.17);
+    }
+
+    .cal-day.today .day-num {
+      color: #fff;
+      background: var(--brown);
+    }
+
+    .cal-day.has-poo { background: linear-gradient(145deg, #fff8f0, #fff0e3); }
+    .cal-day.has-period { background: linear-gradient(145deg, #fff8f9, #fff0f4); }
+    .cal-day.has-poo.has-period { background: linear-gradient(145deg, #fff7ee, #fff0f4); }
+
+    .day-num {
+      position: absolute;
+      left: 7px;
+      top: 6px;
+      display: grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      font-size: 0.7rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .day-marker {
+      position: absolute;
+      left: 50%;
+      bottom: 8px;
+      transform: translateX(-50%);
+      font-size: clamp(0.9rem, 4vw, 1.22rem);
+      line-height: 1;
+    }
+
+    .count-badge {
+      position: absolute;
+      right: 5px;
+      bottom: 5px;
+      min-width: 19px;
+      height: 19px;
+      padding: 0 5px;
+      display: grid;
+      place-items: center;
+      border: 2px solid #fffaf5;
+      border-radius: 999px;
+      background: #b9825d;
+      color: white;
+      font-size: 0.58rem;
+      font-weight: 800;
+      box-shadow: 0 3px 7px rgba(132, 82, 52, 0.18);
+    }
+
+    .period-bow {
+      position: absolute;
+      right: 3px;
+      top: 2px;
+      font-size: 0.85rem;
+      filter: drop-shadow(0 2px 3px rgba(197, 101, 129, 0.18));
+    }
+
+    .legend {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-top: 10px;
+      color: #a08e80;
+      font-size: 0.64rem;
+    }
+
+    .editor-card {
+      margin-top: 16px;
+      padding: 17px 15px 15px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: linear-gradient(145deg, #fcf8f3, #fffdf9);
+    }
+
+    .editor-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .editor-date {
+      font-size: 0.9rem;
+      font-weight: 750;
+    }
+
+    .daily-count {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--peach-soft);
+      color: #9b6643;
+      font-size: 0.7rem;
+      white-space: nowrap;
+    }
+
+    .section-label {
+      margin-bottom: 9px;
+      color: #9a8474;
+      font-size: 0.69rem;
+      line-height: 1.6;
+    }
+
+    .type-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .type-btn {
+      min-height: 66px;
+      padding: 9px 5px;
+      border: 1px solid #eadfd4;
+      border-radius: 17px;
+      background: #fffdf9;
+      color: #67574c;
+      box-shadow: 0 5px 13px rgba(137, 94, 65, 0.04);
+    }
+
+    .type-btn:hover {
+      transform: translateY(-2px);
+      border-color: #deb99f;
+      box-shadow: 0 9px 18px rgba(137, 94, 65, 0.08);
+    }
+
+    .type-emoji { display: block; font-size: 1.35rem; line-height: 1.1; }
+    .type-name { display: block; margin-top: 5px; font-size: 0.67rem; }
+
+    .period-row {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed #e8dcd2;
+    }
+
+    .period-btn {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #f0cbd5;
+      border-radius: 16px;
+      background: #fff8fa;
+      color: #ad6379;
+      text-align: left;
+    }
+
+    .period-btn.active {
+      border-color: #e39aae;
+      background: linear-gradient(135deg, #ffeef3, #fff7f9);
+      box-shadow: 0 7px 17px rgba(217, 125, 151, 0.12);
+    }
+
+    .period-copy strong { display: block; font-size: 0.78rem; }
+    .period-copy small { display: block; margin-top: 3px; color: #c08b9b; font-size: 0.63rem; }
+    .period-state { font-size: 0.68rem; font-weight: 700; }
+
+    .history-block {
+      margin-top: 13px;
+      padding-top: 12px;
+      border-top: 1px dashed #e8dcd2;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .history-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border: 1px solid #eee3da;
+      border-radius: 13px;
+      background: rgba(255,255,255,0.72);
+      font-size: 0.72rem;
+    }
+
+    .history-main { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .history-time { color: #b09b8c; font-size: 0.62rem; }
+
+    .remove-one {
+      width: 28px;
+      height: 28px;
+      border: 0;
+      border-radius: 9px;
+      background: #f8eee8;
+      color: #b2775f;
+      cursor: pointer;
+    }
+
+    .empty-history {
+      padding: 11px;
+      border: 1px dashed #e7dbd0;
+      border-radius: 13px;
+      color: #b09d90;
+      font-size: 0.69rem;
+      text-align: center;
+    }
+
+    .note-label {
+      display: block;
+      margin-top: 13px;
+      color: #9a8474;
+      font-size: 0.69rem;
+    }
+
+    .note-area {
+      width: 100%;
+      min-height: 72px;
+      margin-top: 7px;
+      padding: 11px 12px;
+      resize: vertical;
+      outline: none;
+      border: 1px solid #e4d8ce;
+      border-radius: 15px;
+      background: #fffefa;
+      color: var(--ink);
+      font-size: 0.74rem;
+      line-height: 1.6;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .note-area:focus {
+      border-color: #dfad89;
+      box-shadow: 0 0 0 3px rgba(223, 173, 137, 0.14);
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .soft-btn, .danger-btn {
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 0.68rem;
+    }
+
+    .soft-btn {
+      border: 1px solid #e7dbd0;
+      background: #fffaf5;
+      color: #8e7565;
+    }
+
+    .danger-btn {
+      border: 1px solid #f0d4cb;
+      background: #fff6f2;
+      color: #b36e5d;
+    }
+
+    footer {
+      padding-top: 20px;
+      color: #b5a397;
+      font-size: 0.62rem;
+      line-height: 1.8;
+      text-align: center;
+    }
+
+    .combo-pop {
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      color: #9a5d36;
+      font-weight: 900;
+      font-size: 1.1rem;
+      text-shadow: 0 2px 0 #fff;
+      animation: comboUp 0.85s cubic-bezier(.2,.85,.3,1) forwards;
+    }
+
+    @keyframes comboUp {
+      0% { opacity: 0; transform: translate(-50%, -35%) scale(.7); }
+      25% { opacity: 1; transform: translate(-50%, -58%) scale(1.16); }
+      100% { opacity: 0; transform: translate(-50%, -125%) scale(.92); }
+    }
+
+    .particle {
+      position: fixed;
+      z-index: 9998;
+      pointer-events: none;
+      font-size: 1.4rem;
+      animation: particleFly 0.8s ease-out forwards;
+    }
+
+    @keyframes particleFly {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(.3) rotate(0); }
+      25% { opacity: 1; }
+      100% { opacity: 0; transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(.8) rotate(var(--r)); }
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: max(26px, env(safe-area-inset-bottom));
+      z-index: 10001;
+      max-width: min(88vw, 420px);
+      padding: 10px 16px;
+      transform: translateX(-50%);
+      border: 1px solid rgba(224, 190, 166, 0.9);
+      border-radius: 999px;
+      background: rgba(255, 252, 248, 0.96);
+      color: #8d654b;
+      box-shadow: 0 12px 28px rgba(96, 64, 44, 0.15);
+      font-size: 0.74rem;
+      text-align: center;
+      animation: toastIn .24s ease-out, toastOut .25s ease-in 1.85s forwards;
+    }
+
+    @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 12px); } }
+    @keyframes toastOut { to { opacity: 0; transform: translate(-50%, 8px); } }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      visibility: hidden;
+      opacity: 0;
+      background: rgba(64, 42, 29, 0.20);
+      backdrop-filter: blur(5px);
+      transition: opacity .18s ease, visibility .18s ease;
+    }
+
+    .modal.show { visibility: visible; opacity: 1; }
+
+    .report-card {
+      width: min(100%, 390px);
+      max-height: min(88vh, 760px);
+      overflow-y: auto;
+      padding: 24px 19px 20px;
+      border: 1px solid #e7d8cc;
+      border-radius: 26px;
+      background: #fffdf9;
+      box-shadow: 0 22px 55px rgba(75, 49, 32, 0.18);
+      transform: translateY(10px) scale(.97);
+      transition: transform .18s ease;
+      scrollbar-width: thin;
+      scrollbar-color: #efd2bf transparent;
+    }
+
+    .modal.show .report-card { transform: translateY(0) scale(1); }
+    .report-card h2 { font-size: 1rem; text-align: center; }
+
+    .report-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 17px 0 15px;
+    }
+
+    .stat-box {
+      padding: 12px 5px;
+      border: 1px solid #eee1d7;
+      border-radius: 16px;
+      background: #fff9f4;
+      text-align: center;
+    }
+
+    .stat-num { color: #af7751; font-size: 1.45rem; font-weight: 850; }
+    .stat-label { margin-top: 3px; color: #a18d7e; font-size: 0.62rem; }
+
+    .progress-panel {
+      display: grid;
+      gap: 12px;
+      margin: 0 0 16px;
+      padding: 14px;
+      border: 1px solid #eee0d5;
+      border-radius: 18px;
+      background: linear-gradient(145deg, #fff9f4, #fff6f8);
+    }
+
+    .progress-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: #806c5e;
+      font-size: .68rem;
+      font-weight: 750;
+    }
+
+    .progress-value {
+      color: #b27052;
+      font-size: .7rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .progress-track {
+      height: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(229, 207, 192, .75);
+      border-radius: 999px;
+      background: #f4e9e1;
+      box-shadow: inset 0 1px 2px rgba(122, 83, 58, .06);
+    }
+
+    .progress-fill {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #edb489, #eaa4b8);
+      box-shadow: 0 2px 8px rgba(222, 137, 158, .25);
+      transition: width .75s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .progress-fill.streak {
+      background: linear-gradient(90deg, #f1c06e, #ee9276);
+    }
+
+    .progress-caption {
+      margin-top: 5px;
+      color: #a28f81;
+      font-size: .61rem;
+      line-height: 1.45;
+    }
+
+    .award-card {
+      position: relative;
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 11px;
+      align-items: center;
+      margin-bottom: 16px;
+      padding: 14px;
+      overflow: hidden;
+      border: 1px solid #efd9bd;
+      border-radius: 19px;
+      background: linear-gradient(135deg, #fff7df 0%, #fff0e9 55%, #fff2f6 100%);
+      box-shadow: 0 8px 22px rgba(179, 121, 78, .09);
+    }
+
+    .award-card::after {
+      content: "✦";
+      position: absolute;
+      right: 10px;
+      top: 5px;
+      color: rgba(211, 150, 92, .25);
+      font-size: 2rem;
+      transform: rotate(13deg);
+    }
+
+    .award-icon {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border: 1px solid rgba(226, 184, 126, .62);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, .66);
+      font-size: 1.7rem;
+      box-shadow: 0 5px 14px rgba(157, 104, 59, .09);
+    }
+
+    .award-kicker { color: #b18563; font-size: .58rem; letter-spacing: 1px; }
+    .award-title { margin-top: 2px; color: #7e5a45; font-size: .86rem; font-weight: 850; }
+    .award-desc { margin-top: 4px; color: #9d8372; font-size: .61rem; line-height: 1.5; }
+
+    .rank-title { color: #937b6a; font-size: 0.7rem; font-weight: 750; }
+    .rank-list { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
+    .rank-chip { padding: 6px 9px; border-radius: 999px; background: #f9eee6; color: #8c6953; font-size: 0.66rem; }
+
+    .badge-section { margin-top: 15px; }
+    .badge-list { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
+    .award-badge {
+      padding: 6px 9px;
+      border: 1px solid #efddd0;
+      border-radius: 999px;
+      background: #fff9f2;
+      color: #8c6d58;
+      font-size: .62rem;
+    }
+    .award-badge.locked { opacity: .58; filter: grayscale(.35); }
+
+    .modal-close {
+      width: 100%;
+      margin-top: 18px;
+      padding: 10px;
+      border: 0;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #f5dfd0, #f5d9df);
+      color: #8c6654;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .share-config {
+      margin-top: 16px;
+      padding: 14px;
+      border: 1px solid #ecded3;
+      border-radius: 18px;
+      background: linear-gradient(145deg, #fffaf5, #fff7f9);
+    }
+
+    .share-config-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: #836f61;
+      font-size: .7rem;
+      font-weight: 800;
+    }
+
+    .share-privacy-note {
+      margin-top: 6px;
+      color: #aa9688;
+      font-size: .59rem;
+      line-height: 1.55;
+    }
+
+    .share-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 11px;
+    }
+
+    .share-option {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 38px;
+      padding: 8px 9px;
+      border: 1px solid #eadfd6;
+      border-radius: 13px;
+      background: rgba(255,255,255,.68);
+      color: #806c5e;
+      cursor: pointer;
+      font-size: .62rem;
+      line-height: 1.35;
+    }
+
+    .share-option input {
+      width: 15px;
+      height: 15px;
+      accent-color: #d991a5;
+      flex: 0 0 auto;
+    }
+
+    .share-generate-btn {
+      width: 100%;
+      margin-top: 12px;
+      padding: 11px 12px;
+      border: 1px solid #e7c7bc;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #f3c8ac, #efa9ba);
+      box-shadow: 0 7px 16px rgba(203, 126, 143, .16);
+      color: #704f43;
+      cursor: pointer;
+      font-size: .72rem;
+      font-weight: 850;
+      letter-spacing: .3px;
+    }
+
+    .share-generate-btn:active { transform: scale(.98); }
+    .share-generate-btn[disabled] { opacity: .65; cursor: wait; }
+
+    .share-preview-card {
+      width: min(100%, 430px);
+      max-height: 92vh;
+      overflow-y: auto;
+      padding: 21px 17px 18px;
+      border: 1px solid #e7d8cc;
+      border-radius: 26px;
+      background: #fffdf9;
+      box-shadow: 0 22px 55px rgba(75, 49, 32, 0.18);
+      transform: translateY(10px) scale(.97);
+      transition: transform .18s ease;
+    }
+
+    .modal.show .share-preview-card { transform: translateY(0) scale(1); }
+    .share-preview-card h2 { font-size: 1rem; text-align: center; }
+
+    .share-preview-intro {
+      margin: 7px 0 13px;
+      color: #9b887a;
+      font-size: .62rem;
+      line-height: 1.55;
+      text-align: center;
+    }
+
+    .share-image-shell {
+      padding: 8px;
+      border: 1px solid #eadfd6;
+      border-radius: 18px;
+      background: #f7eee8;
+      box-shadow: inset 0 1px 3px rgba(91, 58, 38, .06);
+    }
+
+    .share-image-shell img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 13px;
+      background: #fffaf4;
+    }
+
+    .share-action-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .share-action-row.single { grid-template-columns: 1fr; }
+
+    .share-action-btn {
+      min-height: 42px;
+      padding: 9px 10px;
+      border: 1px solid #e6d4c8;
+      border-radius: 14px;
+      background: #fff8f2;
+      color: #7c6557;
+      cursor: pointer;
+      font-size: .68rem;
+      font-weight: 750;
+    }
+
+    .share-action-btn.primary {
+      border-color: #e7b9c5;
+      background: linear-gradient(135deg, #f6d7c4, #f2c3d0);
+      color: #745247;
+    }
+
+    .share-action-btn:active { transform: scale(.98); }
+    .share-preview-hint {
+      margin: 10px 3px 0;
+      color: #aa9688;
+      font-size: .58rem;
+      line-height: 1.55;
+      text-align: center;
+    }
+
+    .hidden { display: none !important; }
+    .report-stats.two-cols { grid-template-columns: repeat(2, 1fr); }
+    .settings-btn { min-width: 38px; padding-inline: 10px; }
+
+    .choice-card, .settings-card {
+      width: min(100%, 390px);
+      padding: 24px 20px 20px;
+      border: 1px solid #e7d8cc;
+      border-radius: 26px;
+      background: #fffdf9;
+      box-shadow: 0 22px 55px rgba(75, 49, 32, 0.18);
+      transform: translateY(10px) scale(.97);
+      transition: transform .18s ease;
+    }
+
+    .modal.show .choice-card, .modal.show .settings-card { transform: translateY(0) scale(1); }
+    .choice-card h2, .settings-card h2 { font-size: 1.03rem; text-align: center; }
+    .choice-intro, .settings-intro {
+      margin: 8px auto 16px;
+      color: #9a8576;
+      font-size: .68rem;
+      line-height: 1.65;
+      text-align: center;
+    }
+
+    .mode-list { display: grid; gap: 10px; }
+    .mode-option {
+      display: grid;
+      grid-template-columns: 42px 1fr auto;
+      gap: 11px;
+      align-items: center;
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #eadfd5;
+      border-radius: 17px;
+      background: linear-gradient(145deg, #fffaf5, #fff7f8);
+      color: #725f52;
+      cursor: pointer;
+      text-align: left;
+    }
+    .mode-option:active { transform: scale(.98); }
+    .mode-icon { font-size: 1.55rem; text-align: center; }
+    .mode-copy strong { display: block; font-size: .78rem; }
+    .mode-copy small { display: block; margin-top: 4px; color: #a59182; font-size: .62rem; line-height: 1.45; }
+    .mode-arrow { color: #c59f88; font-size: 1rem; }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #eadfd5;
+      border-radius: 18px;
+      background: #fff9f4;
+      color: #755f51;
+      cursor: pointer;
+      text-align: left;
+    }
+    .setting-copy strong { display: block; font-size: .78rem; }
+    .setting-copy small { display: block; margin-top: 4px; color: #a59182; font-size: .61rem; line-height: 1.45; }
+    .switch-pill {
+      flex: 0 0 auto;
+      min-width: 58px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: #eee5de;
+      color: #a18d7e;
+      font-size: .6rem;
+      font-weight: 750;
+      text-align: center;
+    }
+    .setting-row.active { border-color: #e9bfca; background: #fff3f6; }
+    .setting-row.active .switch-pill { background: #f0bfd0; color: #7f5563; }
+    .settings-note { margin: 11px 2px 0; color: #aa9688; font-size: .6rem; line-height: 1.55; }
+
+    @media (max-width: 520px) {
+      .journal { padding: 22px 13px 24px; border-radius: 25px; }
+      .topbar { align-items: center; }
+      .today-mini { display: none; }
+      .month-toolbar { grid-template-columns: 35px 1fr 35px auto auto; gap: 5px; }
+      .icon-btn { width: 35px; height: 35px; }
+      .report-btn { height: 35px; padding: 0 9px; }
+      .settings-btn { min-width: 35px; padding-inline: 8px; }
+      .calendar-days { gap: 4px; }
+      .cal-day { border-radius: 12px; }
+      .day-num { left: 4px; top: 4px; width: 19px; height: 19px; font-size: .62rem; }
+      .period-bow { font-size: .72rem; }
+      .count-badge { right: 3px; bottom: 3px; min-width: 17px; height: 17px; font-size: .53rem; }
+      .type-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .type-btn { min-height: 62px; border-radius: 15px; }
+      .share-options { grid-template-columns: 1fr; }
+      .share-action-row { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+    }
+  </style>
 </head>
 <body>
-<div class="journal">
-    <h1>📔 噗噗手账</h1>
-    <div class="sub">✎ 点击噗噗表情 = 立即打卡 · 手账小铺</div>
-    
-    <!-- 正能量语录区域 -->
-    <div class="positive-quote" id="positiveQuote">
-        <div class="quote-text" id="quoteText">加载中... 美好的一天从噗噗开始✨</div>
-        <div class="quote-author" id="quoteAuthor">—— 噗噗小精灵</div>
-    </div>
-
-    <div class="month-header">
-        <div class="month-nav">
-            <button id="prevMonthBtn">◀</button>
-            <span class="current-month" id="currentMonthYear">2026年1月</span>
-            <button id="nextMonthBtn">▶</button>
+  <main class="app-shell">
+    <section class="journal">
+      <header class="topbar">
+        <div>
+          <h1>📔 噗噗手账</h1>
+          <p class="subtitle">每点一次就记一次 · 今日次数清清楚楚</p>
         </div>
-        <button id="monthReportBtn" class="report-btn">📊 月报</button>
-    </div>
+        <div class="today-mini" id="todayMini">今天也要顺顺利利</div>
+      </header>
 
-    <div class="calendar">
+      <section class="quote-card" aria-label="每日一句">
+        <div class="quote-text" id="quoteText">加载今日小句子…</div>
+        <div class="quote-author" id="quoteAuthor">—— 噗噗小精灵</div>
+      </section>
+
+      <div class="month-toolbar">
+        <button class="icon-btn" id="prevMonthBtn" aria-label="上个月">‹</button>
+        <div class="month-title" id="monthTitle">2026年 6月</div>
+        <button class="icon-btn" id="nextMonthBtn" aria-label="下个月">›</button>
+        <button class="report-btn" id="reportBtn">📊 月报</button>
+        <button class="report-btn settings-btn" id="settingsBtn" aria-label="记录设置">⚙️</button>
+      </div>
+
+      <section class="calendar-card" aria-label="月历">
         <div class="weekdays">
-            <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+          <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
         </div>
         <div class="calendar-days" id="calendarDays"></div>
-    </div>
+        <div class="legend"><span>💩 数字 = 当天次数</span><span id="periodLegend">🎀 = 经期日</span></div>
+      </section>
 
-    <div class="record-section" id="recordSection">
-        <div class="selected-date-title" id="selectedDateTitle">
-            📌 点击日历上任一天
-            <span id="hasRecordBadge" class="current-record-badge" style="display:none;">✅ 今日已噗</span>
+      <section class="editor-card" id="editorCard">
+        <div class="editor-head">
+          <div class="editor-date" id="editorDate">请选择日期</div>
+          <div class="daily-count" id="dailyCount">今日 0 次</div>
         </div>
-        <div id="recordContent">
-            <div class="info-tip">🌸 点击噗噗表情直接打卡，蹦出可爱特效～</div>
-        </div>
-    </div>
-    <footer>💩 一键打卡 · 点击月报看统计 | 数据仅存本地 | 每日正能量加持✨</footer>
-</div>
+        <div id="editorContent"></div>
+      </section>
 
-<div id="reportModal" class="report-modal">
+      <footer>数据仅保存在当前设备浏览器中 · 温柔记录身体的小信号</footer>
+    </section>
+  </main>
+
+  <div class="modal" id="setupModal" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
+    <div class="choice-card">
+      <h2 id="setupTitle">选择你的记录方式</h2>
+      <p class="choice-intro">先从最适合自己的功能开始。之后可在右上角设置中随时修改。</p>
+      <div class="mode-list">
+        <button class="mode-option" data-setup-mode="basic">
+          <span class="mode-icon">🌿</span>
+          <span class="mode-copy"><strong>基础噗噗记录</strong><small>只记录每日次数、状态、备注与月报。</small></span>
+          <span class="mode-arrow">›</span>
+        </button>
+        <button class="mode-option" data-setup-mode="period">
+          <span class="mode-icon">🎀</span>
+          <span class="mode-copy"><strong>基础记录 + 周期功能</strong><small>额外显示经期按钮、月历蝴蝶结和经期统计。</small></span>
+          <span class="mode-arrow">›</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="settings-card">
+      <h2 id="settingsTitle">记录设置</h2>
+      <p class="settings-intro">只开启自己需要的功能，让首页保持简单。</p>
+      <button class="setting-row" id="periodToggleBtn" aria-pressed="false">
+        <span class="setting-copy"><strong>🎀 周期记录</strong><small>显示经期标记、月历蝴蝶结和月报经期天数。</small></span>
+        <span class="switch-pill" id="periodToggleState">未开启</span>
+      </button>
+      <p class="settings-note">关闭只会隐藏周期相关界面，不会删除已经保存的经期记录。</p>
+      <button class="modal-close" id="closeSettingsBtn">完成</button>
+    </div>
+  </div>
+
+  <div class="modal" id="reportModal" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
     <div class="report-card">
-        <h3 id="modalMonthTitle">📆 本月报告</h3>
-        <div class="report-stats">
-            <div class="report-stat"><div class="report-num" id="modalPooDays">0</div><div class="report-label">噗噗天数</div></div>
-            <div class="report-stat"><div class="report-num" id="modalMissDays">0</div><div class="report-label">无噗天数</div></div>
-        </div>
-        <div class="report-rank">
-            <div style="font-size:0.68rem; color:#a5805d; letter-spacing:0.5px;">🏆 噗噗类型排行</div>
-            <div class="rank-badge-list" id="modalRankList">-</div>
-        </div>
-        <button class="close-report" id="closeReportBtn">收下啦 ✨</button>
-    </div>
-</div>
+      <h2 id="reportTitle">本月小结</h2>
+      <div class="report-stats">
+        <div class="stat-box"><div class="stat-num" id="statDays">0</div><div class="stat-label">噗噗天数</div></div>
+        <div class="stat-box"><div class="stat-num" id="statTimes">0</div><div class="stat-label">噗噗总次数</div></div>
+        <div class="stat-box" id="periodStatBox"><div class="stat-num" id="statPeriod">0</div><div class="stat-label">经期天数</div></div>
+      </div>
 
-<script>
+      <div class="progress-panel">
+        <div class="progress-item">
+          <div class="progress-head"><span>📅 本月记录覆盖率</span><span class="progress-value" id="coverageValue">0%</span></div>
+          <div class="progress-track" role="progressbar" aria-label="本月记录覆盖率" aria-valuemin="0" aria-valuemax="100" id="coverageTrack">
+            <div class="progress-fill" id="coverageFill"></div>
+          </div>
+          <div class="progress-caption" id="coverageCaption">已记录 0 天</div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-head"><span>🔥 连续记录力</span><span class="progress-value" id="streakValue">0 / 7天</span></div>
+          <div class="progress-track" role="progressbar" aria-label="连续记录力" aria-valuemin="0" aria-valuemax="100" id="streakTrack">
+            <div class="progress-fill streak" id="streakFill"></div>
+          </div>
+          <div class="progress-caption" id="streakCaption">连续记录 3 天会解锁第一枚坚持勋章</div>
+        </div>
+      </div>
+
+      <div class="award-card" id="featuredAward">
+        <div class="award-icon" id="awardIcon">🌱</div>
+        <div>
+          <div class="award-kicker">本月荣誉</div>
+          <div class="award-title" id="awardTitle">待解锁新奖项</div>
+          <div class="award-desc" id="awardDesc">完成一次记录，就能领取第一枚小奖章。</div>
+        </div>
+      </div>
+
+      <div class="rank-title">🏆 本月类型排行</div>
+      <div class="rank-list" id="rankList"></div>
+
+      <div class="badge-section">
+        <div class="rank-title">🎖️ 已解锁勋章</div>
+        <div class="badge-list" id="awardBadgeList"></div>
+      </div>
+
+      <section class="share-config" aria-labelledby="shareConfigTitle">
+        <div class="share-config-title" id="shareConfigTitle"><span>🖼️ 导出月报分享图</span><span>PNG</span></div>
+        <p class="share-privacy-note">默认不包含每日明细、备注、具体时间和经期日期，只导出本月摘要。</p>
+        <div class="share-options">
+          <label class="share-option"><input type="checkbox" id="shareShowTimes" checked>显示噗噗总次数</label>
+          <label class="share-option"><input type="checkbox" id="shareShowRank" checked>显示类型排行</label>
+          <label class="share-option" id="sharePeriodOption"><input type="checkbox" id="shareShowPeriod">显示周期天数</label>
+          <label class="share-option"><input type="checkbox" id="shareShowBadges" checked>显示已解锁勋章</label>
+        </div>
+        <button class="share-generate-btn" id="generateShareBtn">生成本月分享图 ✨</button>
+      </section>
+
+      <button class="modal-close" id="closeReportBtn">收下这份记录 ✨</button>
+    </div>
+  </div>
+
+  <div class="modal" id="sharePreviewModal" role="dialog" aria-modal="true" aria-labelledby="sharePreviewTitle">
+    <div class="share-preview-card">
+      <h2 id="sharePreviewTitle">月报分享图已生成</h2>
+      <p class="share-preview-intro">可以保存为 PNG；部分手机也可以直接调起系统分享。</p>
+      <div class="share-image-shell">
+        <img id="sharePreviewImage" alt="噗噗手账月报分享图预览">
+      </div>
+      <div class="share-action-row">
+        <button class="share-action-btn primary" id="saveShareImageBtn">保存 PNG</button>
+        <button class="share-action-btn" id="nativeShareBtn">分享给朋友</button>
+      </div>
+      <p class="share-preview-hint" id="sharePreviewHint">若浏览器没有直接保存，可长按上方图片保存到相册。</p>
+      <button class="modal-close" id="closeSharePreviewBtn">返回月报</button>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
     const POO_TYPES = [
-        { emoji: "💩", label: "标准噗", value: "standard" },
-        { emoji: "💧", label: "顺畅噗", value: "smooth" },
-        { emoji: "🪨", label: "费劲噗", value: "hard" },
-        { emoji: "🍂", label: "软噗噗", value: "soft" },
-        { emoji: "🤢", label: "肚子痛", value: "pain" },
-        { emoji: "✨", label: "黄金噗", value: "perfect" }
+      { emoji: "💩", label: "标准噗", value: "standard" },
+      { emoji: "💧", label: "顺畅噗", value: "smooth" },
+      { emoji: "🪨", label: "费劲噗", value: "hard" },
+      { emoji: "🍂", label: "软噗噗", value: "soft" },
+      { emoji: "🤢", label: "肚子痛", value: "pain" },
+      { emoji: "✨", label: "黄金噗", value: "perfect" }
     ];
 
-    // 正能量语录库
     const POSITIVE_QUOTES = [
-        { text: "今天也要好好噗噗，清空烦恼，轻装上阵！", author: "—— 噗噗哲学家" },
-        { text: "每一次顺畅的噗噗，都是身体在说：我超棒的！", author: "—— 肠道小精灵" },
-        { text: "生活就像噗噗，有时候费劲，但结果总是美好的～", author: "—— 人生体验家" },
-        { text: "善待自己的身体，从关注每一次噗噗开始✨", author: "—— 健康守护者" },
-        { text: "即使是费劲噗，也是身体在努力工作的证明！", author: "—— 努力打工人" },
-        { text: "每天都要元气满满，噗噗也要闪闪发光🌟", author: "—— 元气小太阳" },
-        { text: "清空肠道，才能装下更多美好和快乐～", author: "—— 快乐收集者" },
-        { text: "小小的噗噗，大大的满足，今天也是幸福的一天！", author: "—— 幸福体验官" },
-        { text: "规律噗噗，规律生活，做自己身体的主人💪", author: "—— 自律达人" },
-        { text: "不管是黄金噗还是软噗噗，都是独一无二的你呀～", author: "—— 个性代言人" },
-        { text: "噗噗打卡成功！今天的你，又完成了一项重要任务🎉", author: "—— 成就解锁员" },
-        { text: "身体的小信号，要认真倾听，好好照顾自己哦～", author: "—— 暖心小管家" },
-        { text: "每一次噗噗，都是身体在排毒，也是心情在放晴🌞", author: "—— 心情调节师" },
-        { text: "慢慢来，不着急，噗噗如此，人生亦如此～", author: "—— 佛系生活家" },
-        { text: "记录噗噗，记录生活，认真对待每一天的小确幸✨", author: "—— 生活记录员" }
+      ["小小记录，也是认真照顾自己的证据。", "—— 噗噗小精灵"],
+      ["每一次顺畅，都是身体送来的小红花。", "—— 肠道观察员"],
+      ["慢慢来，不着急，身体有自己的节奏。", "—— 温柔生活家"],
+      ["清空一点负担，装下更多好心情。", "—— 快乐收集员"],
+      ["今天也有好好听身体说话，真棒。", "—— 健康守护者"],
+      ["规律记录，不是焦虑，是更懂自己。", "—— 身体日记本"],
+      ["噗噗完成，今日轻盈值 +1。", "—— 元气补给站"]
     ];
 
     const STORAGE_KEY = "poop_monthly_journal_flat";
+    const PREF_KEY = "poop_journal_preferences_v1";
     let records = {};
-    let currentYear = 2026;
-    let currentMonth = 5;
-    let selectedDateStr = "";
+    let preferences = { hasChosen: false, periodEnabled: false };
+    let currentYear = new Date().getFullYear();
+    let currentMonth = new Date().getMonth();
+    let selectedDateStr = formatDate(new Date());
+    let noteSaveTimer = null;
+    let comboState = { date: "", count: 0, time: 0 };
+    let shareImageBlob = null;
+    let shareImageUrl = "";
 
-    const calendarDaysDiv = document.getElementById("calendarDays");
-    const currentMonthYearSpan = document.getElementById("currentMonthYear");
-    const prevMonthBtn = document.getElementById("prevMonthBtn");
-    const nextMonthBtn = document.getElementById("nextMonthBtn");
-    const recordSectionContent = document.getElementById("recordContent");
-    const selectedDateTitleSpan = document.getElementById("selectedDateTitle");
-    const hasRecordBadge = document.getElementById("hasRecordBadge");
-    const monthReportBtn = document.getElementById("monthReportBtn");
-    const reportModal = document.getElementById("reportModal");
-    const closeReportBtn = document.getElementById("closeReportBtn");
-    const modalMonthTitle = document.getElementById("modalMonthTitle");
-    const modalPooDays = document.getElementById("modalPooDays");
-    const modalMissDays = document.getElementById("modalMissDays");
-    const modalRankList = document.getElementById("modalRankList");
-    
-    // 正能量语录元素
-    const quoteText = document.getElementById("quoteText");
-    const quoteAuthor = document.getElementById("quoteAuthor");
+    const $ = (selector) => document.querySelector(selector);
+    const calendarDays = $("#calendarDays");
+    const monthTitle = $("#monthTitle");
+    const editorDate = $("#editorDate");
+    const dailyCount = $("#dailyCount");
+    const editorContent = $("#editorContent");
+    const reportModal = $("#reportModal");
+    const setupModal = $("#setupModal");
+    const settingsModal = $("#settingsModal");
+    const sharePreviewModal = $("#sharePreviewModal");
 
-    // ========== 每日正能量语录 ==========
-    function getRandomQuote() {
-        // 根据日期生成固定的随机数种子，确保同一天显示同一句话
-        const today = new Date();
-        const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-        const randomIndex = Math.abs(Math.sin(seed) * 10000) % POSITIVE_QUOTES.length;
-        return POSITIVE_QUOTES[Math.floor(randomIndex)];
+    function formatDate(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
     }
 
-    function displayDailyQuote() {
-        const quote = getRandomQuote();
-        quoteText.textContent = quote.text;
-        quoteAuthor.textContent = quote.author;
-        
-        // 添加打字机效果
-        typeWriterEffect(quoteText, quote.text);
+    function formatDisplayDate(dateStr) {
+      const [y, m, d] = dateStr.split("-").map(Number);
+      const weekday = ["日", "一", "二", "三", "四", "五", "六"][new Date(y, m - 1, d).getDay()];
+      return `${y}年${m}月${d}日 · 周${weekday}`;
     }
 
-    // 打字机效果
-    function typeWriterEffect(element, text) {
-        element.textContent = "";
-        let i = 0;
-        const speed = 30;
-        
-        function type() {
-            if (i < text.length) {
-                element.textContent += text.charAt(i);
-                i++;
-                setTimeout(type, speed);
-            }
+    function createId() {
+      return `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    function normalizeRecord(raw) {
+      if (!raw || typeof raw !== "object") return { poos: [], period: false, note: "", updatedAt: Date.now() };
+
+      if (Array.isArray(raw.poos)) {
+        return {
+          poos: raw.poos.map((item) => ({
+            id: item.id || createId(),
+            typeValue: item.typeValue || "standard",
+            typeEmoji: item.typeEmoji || "💩",
+            typeLabel: item.typeLabel || "标准噗",
+            createdAt: Number(item.createdAt || item.updatedAt || Date.now())
+          })),
+          period: Boolean(raw.period),
+          note: typeof raw.note === "string" ? raw.note : "",
+          updatedAt: Number(raw.updatedAt || Date.now())
+        };
+      }
+
+      const migratedPoos = raw.typeValue ? [{
+        id: createId(),
+        typeValue: raw.typeValue,
+        typeEmoji: raw.typeEmoji || "💩",
+        typeLabel: raw.typeLabel || "标准噗",
+        createdAt: Number(raw.updatedAt || Date.now())
+      }] : [];
+
+      return {
+        poos: migratedPoos,
+        period: Boolean(raw.period),
+        note: typeof raw.note === "string" ? raw.note : "",
+        updatedAt: Number(raw.updatedAt || Date.now())
+      };
+    }
+
+    function loadPreferences() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(PREF_KEY) || "null");
+        if (saved && typeof saved === "object") {
+          preferences = {
+            hasChosen: Boolean(saved.hasChosen),
+            periodEnabled: Boolean(saved.periodEnabled)
+          };
         }
-        
-        setTimeout(type, 300);
+      } catch (error) {
+        console.warn("偏好设置读取失败，已使用基础模式。", error);
+      }
     }
 
-    // ========== 夸张噗噗特效系统 ==========
-    function burstPoop(event, customEmoji = "💩") {
-        let clientX, clientY;
-        if (event.touches) {
-            clientX = event.touches[0].clientX;
-            clientY = event.touches[0].clientY;
-        } else {
-            clientX = event.clientX;
-            clientY = event.clientY;
-        }
-
-        // 主噗噗 - 超大
-        const mainEmojis = ["💩", "💩💨", "✨💩", "🎉💩", "💨💩", "💩✨", "🌟💩"];
-        const mainEmoji = customEmoji === "💩" ? mainEmojis[Math.floor(Math.random() * mainEmojis.length)] : customEmoji;
-        
-        createPoopParticle(clientX, clientY, mainEmoji, 'poop-burst', 0, 0);
-
-        // 副噗噗 - 向左右飞散
-        const sideEmojis = ["💩", "💨", "✨", "🌟", "💫"];
-        const sideCount = 2 + Math.floor(Math.random() * 2); // 2-3个
-        for (let i = 0; i < sideCount; i++) {
-            const delay = 50 + i * 80;
-            const direction = i % 2 === 0 ? -1 : 1;
-            const offsetX = direction * (30 + Math.random() * 40);
-            setTimeout(() => {
-                createPoopParticle(
-                    clientX + offsetX * 0.3, 
-                    clientY, 
-                    sideEmojis[Math.floor(Math.random() * sideEmojis.length)], 
-                    'poop-burst secondary',
-                    offsetX,
-                    offsetX * 2
-                );
-            }, delay);
-        }
-
-        // 星星粒子
-        const sparkles = ["✨", "🌟", "💫", "⭐"];
-        const sparkleCount = 3 + Math.floor(Math.random() * 3); // 3-5个
-        for (let i = 0; i < sparkleCount; i++) {
-            const delay = 30 + i * 60;
-            const angle = (Math.PI * 2 * i) / sparkleCount;
-            const distance = 40 + Math.random() * 50;
-            const offsetX = Math.cos(angle) * distance;
-            setTimeout(() => {
-                createPoopParticle(
-                    clientX, 
-                    clientY, 
-                    sparkles[Math.floor(Math.random() * sparkles.length)], 
-                    'poop-burst sparkle',
-                    offsetX,
-                    offsetX * 1.5
-                );
-            }, delay);
-        }
+    function savePreferences() {
+      localStorage.setItem(PREF_KEY, JSON.stringify(preferences));
     }
 
-    function createPoopParticle(x, y, emoji, className, tx, tx2) {
-        const div = document.createElement("div");
-        div.className = className;
-        div.textContent = emoji;
-        div.style.left = (x - 30) + "px";
-        div.style.top = (y - 30) + "px";
-        div.style.setProperty('--tx', tx + 'px');
-        div.style.setProperty('--tx2', tx2 + 'px');
-        document.body.appendChild(div);
-        
-        const duration = className.includes('sparkle') ? 600 : className.includes('secondary') ? 700 : 900;
-        setTimeout(() => div.remove(), duration);
+    function updateFeatureVisibility() {
+      const enabled = preferences.periodEnabled;
+      $("#periodLegend").classList.toggle("hidden", !enabled);
+      $("#periodStatBox").classList.toggle("hidden", !enabled);
+      document.querySelector(".report-stats").classList.toggle("two-cols", !enabled);
+      $("#periodToggleBtn").classList.toggle("active", enabled);
+      $("#periodToggleBtn").setAttribute("aria-pressed", String(enabled));
+      $("#periodToggleState").textContent = enabled ? "已开启 ✓" : "未开启";
+      $("#sharePeriodOption")?.classList.toggle("hidden", !enabled);
+      if (!enabled && $("#shareShowPeriod")) $("#shareShowPeriod").checked = false;
     }
 
-    function formatDateToYMD(date) {
-        const y = date.getFullYear();
-        const m = String(date.getMonth() + 1).padStart(2, '0');
-        const d = String(date.getDate()).padStart(2, '0');
-        return `${y}-${m}-${d}`;
+    function setPeriodEnabled(enabled, announce = true) {
+      preferences.hasChosen = true;
+      preferences.periodEnabled = Boolean(enabled);
+      savePreferences();
+      updateFeatureVisibility();
+      renderAll();
+      if (announce) showToast(enabled ? "已开启周期记录 🎀" : "已切换为基础模式 🌿");
     }
+
+    function chooseSetupMode(mode) {
+      setPeriodEnabled(mode === "period", false);
+      setupModal.classList.remove("show");
+      showToast(mode === "period" ? "已开启基础记录 + 周期功能" : "已开启基础噗噗记录");
+    }
+
+    function showSettings() {
+      updateFeatureVisibility();
+      settingsModal.classList.add("show");
+    }
+
+    function closeSettings() { settingsModal.classList.remove("show"); }
 
     function loadRecords() {
+      try {
         const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-            try { records = JSON.parse(stored); } catch(e) { records = {}; }
-        } else { records = {}; }
-    }
-    function saveRecords() { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); }
-    function getRecordByDate(dateStr) { return records[dateStr] || null; }
-
-    function getCurrentMonthStats() {
-        const year = currentYear;
-        const month = currentMonth;
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        let pooCount = 0;
-        let typeCountMap = new Map();
-        for (let d = 1; d <= daysInMonth; d++) {
-            const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-            const rec = records[dateStr];
-            if (rec) {
-                pooCount++;
-                const typeVal = rec.typeValue;
-                typeCountMap.set(typeVal, (typeCountMap.get(typeVal) || 0) + 1);
-            }
-        }
-        const missCount = daysInMonth - pooCount;
-        const sorted = Array.from(typeCountMap.entries()).sort((a,b) => b[1] - a[1]);
-        return { pooCount, missCount, totalDays: daysInMonth, rank: sorted };
-    }
-
-    function showMonthlyReport() {
-        const { pooCount, missCount, rank } = getCurrentMonthStats();
-        const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
-        modalMonthTitle.innerText = `${currentYear}年 ${monthNames[currentMonth]} 噗噗小结`;
-        modalPooDays.innerText = pooCount;
-        modalMissDays.innerText = missCount;
-        
-        // 添加数字增长动画
-        animateNumber(modalPooDays, 0, pooCount, 1000);
-        animateNumber(modalMissDays, 0, missCount, 1000);
-        
-        if (rank.length === 0) {
-            modalRankList.innerHTML = '<span style="font-size:0.68rem; color:#b38f67; letter-spacing:0.5px;">✨ 这个月还没记录～ 点击噗噗轻松记录吧</span>';
-        } else {
-            let html = '';
-            for (let [typeVal, cnt] of rank) {
-                const typeInfo = POO_TYPES.find(t => t.value === typeVal);
-                if (typeInfo) {
-                    html += `<div class="rank-badge">${typeInfo.emoji} ${typeInfo.label} x${cnt}</div>`;
-                }
-            }
-            modalRankList.innerHTML = html;
-        }
-        reportModal.classList.add('show');
-    }
-
-    // 数字增长动画
-    function animateNumber(element, start, end, duration) {
-        let startTime = null;
-        element.innerText = start;
-        
-        function animate(timestamp) {
-            if (!startTime) startTime = timestamp;
-            const progress = Math.min((timestamp - startTime) / duration, 1);
-            const current = Math.floor(progress * (end - start) + start);
-            element.innerText = current;
-            
-            if (progress < 1) {
-                requestAnimationFrame(animate);
-            }
-        }
-        
-        requestAnimationFrame(animate);
-    }
-
-    function closeModal() { reportModal.classList.remove('show'); }
-
-    function clearSelectedStyle() {
-        document.querySelectorAll('.cal-day').forEach(day => day.classList.remove('selected'));
-    }
-    function highlightSelectedDate(dateStr) {
-        clearSelectedStyle();
-        if (!dateStr) return;
-        const targetCell = document.querySelector(`.cal-day[data-date='${dateStr}']`);
-        if (targetCell) targetCell.classList.add('selected');
-    }
-
-    function quickCheckin(dateStr, typeObj, event, optionalNote = "") {
-        if (event) burstPoop(event, typeObj.emoji);
-        let finalNote = optionalNote;
-        if (!finalNote && document.getElementById("floatingNoteInput")) {
-            finalNote = document.getElementById("floatingNoteInput").value;
-        }
-        records[dateStr] = {
-            typeValue: typeObj.value,
-            typeEmoji: typeObj.emoji,
-            typeLabel: typeObj.label,
-            note: finalNote?.trim() || "",
-            updatedAt: Date.now()
-        };
+        const parsed = stored ? JSON.parse(stored) : {};
+        records = Object.fromEntries(Object.entries(parsed).map(([date, raw]) => [date, normalizeRecord(raw)]));
         saveRecords();
-        renderCalendar();
-        highlightSelectedDate(selectedDateStr);
-        if (selectedDateStr === dateStr) renderQuickCheckinUI(dateStr);
-        const targetDayElem = document.querySelector(`.cal-day[data-date='${dateStr}']`);
-        if (targetDayElem) {
-            targetDayElem.classList.add('has-poo');
-            targetDayElem.style.transform = "scale(0.95)";
-            setTimeout(() => { if (targetDayElem) targetDayElem.style.transform = ""; }, 200);
-        }
-        
-        // 随机彩蛋：有时候会出现特别的鼓励语
-        if (Math.random() > 0.7) {
-            showRandomEncouragement();
-        }
+      } catch (error) {
+        console.warn("记录读取失败，已使用空记录。", error);
+        records = {};
+      }
     }
 
-    // 随机鼓励语弹窗
-    function showRandomEncouragement() {
-        const encouragements = [
-            "🎉 噗噗成功！今天也是健康的一天～",
-            "✨ 黄金噗！你也太优秀了吧～",
-            "💪 规律噗噗，健康生活！",
-            "🌟 完美打卡！给自己点个赞～",
-            "🥳 清空烦恼，轻装上阵！"
-        ];
-        
-        const encouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
-        
-        const toast = document.createElement("div");
-        toast.style.position = "fixed";
-        toast.style.bottom = "30px";
-        toast.style.left = "50%";
-        toast.style.transform = "translateX(-50%)";
-        toast.style.background = "rgba(255, 252, 248, 0.95)";
-        toast.style.border = "1px solid #d4b896";
-        toast.style.borderRadius = "20px";
-        toast.style.padding = "10px 20px";
-        toast.style.fontSize = "0.8rem";
-        toast.style.color = "#8a6a4a";
-        toast.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-        toast.style.zIndex = "9999";
-        toast.style.animation = "toastSlideUp 0.3s ease-out, toastFadeOut 0.3s ease-in 2s forwards";
-        toast.textContent = encouragement;
-        
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            document.body.removeChild(toast);
-        }, 2500);
+    function saveRecords() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
     }
 
-    function deleteCheckin(dateStr, event) {
-        if (!records[dateStr]) return;
-        if (event) burstPoop(event, "💩❌");
-        delete records[dateStr];
-        saveRecords();
-        renderCalendar();
-        highlightSelectedDate(selectedDateStr);
-        if (selectedDateStr === dateStr) renderQuickCheckinUI(dateStr);
+    function getDayRecord(dateStr, create = false) {
+      if (!records[dateStr] && create) records[dateStr] = normalizeRecord(null);
+      return records[dateStr] || null;
     }
 
-    function renderQuickCheckinUI(dateStr) {
-        if (!dateStr) {
-            recordSectionContent.innerHTML = `<div class="info-tip">📅 点击日历上任一天，点击噗噗直接打卡～</div>`;
-            selectedDateTitleSpan.innerHTML = `📌 点击日历上任一天`;
-            if (hasRecordBadge) hasRecordBadge.style.display = "none";
-            return;
-        }
-        const [year, month, day] = dateStr.split('-');
-        const existing = getRecordByDate(dateStr);
-        if (existing) {
-            selectedDateTitleSpan.innerHTML = `📌 ${year}年${parseInt(month)}月${parseInt(day)}日  <span style="background:#f0e5d9; border-radius:40px; padding:4px 12px; font-size:0.68rem; letter-spacing:0.5px;">🎉 已打卡 ${existing.typeEmoji} ${existing.typeLabel}</span>`;
-            if (hasRecordBadge) hasRecordBadge.style.display = "inline-flex";
-        } else {
-            selectedDateTitleSpan.innerHTML = `📌 ${year}年${parseInt(month)}月${parseInt(day)}日`;
-            if (hasRecordBadge) hasRecordBadge.style.display = "none";
-        }
-        let typesHtml = `<div class="poo-types" id="directPooTypes">`;
-        POO_TYPES.forEach((type) => {
-            const isActive = (existing && existing.typeValue === type.value);
-            const activeClass = isActive ? 'selected-type-badge' : '';
-            typesHtml += `<div class="type-badge ${activeClass}" data-type-val="${type.value}" data-type-emoji="${type.emoji}" data-type-label="${type.label}">${type.emoji} <span>${type.label}</span></div>`;
-        });
-        typesHtml += `</div>`;
-        let currentNote = existing ? (existing.note || "") : "";
-        typesHtml += `<div class="note-collapse">
-                        <button id="toggleNoteBtn" class="toggle-note-btn">📝 ${currentNote ? "编辑备注" : "添加备注"} (可选)</button>
-                        <textarea id="floatingNoteInput" class="note-area ${currentNote ? 'show' : ''}" rows="2" placeholder="写点小备注～">${escapeHtml(currentNote)}</textarea>
-                      </div>`;
-        typesHtml += `<div class="info-tip">💡 直接点击噗噗 = 打卡！手账轻便 ✨</div>`;
-        recordSectionContent.innerHTML = typesHtml;
-
-        const typeBadges = document.querySelectorAll('#directPooTypes .type-badge');
-        typeBadges.forEach(badge => {
-            const typeVal = badge.getAttribute('data-type-val');
-            const typeObj = POO_TYPES.find(t => t.value === typeVal);
-            if (!typeObj) return;
-            const clickHandler = (e) => {
-                e.stopPropagation();
-                const noteArea = document.getElementById("floatingNoteInput");
-                let noteText = noteArea ? noteArea.value : "";
-                quickCheckin(dateStr, typeObj, e, noteText);
-            };
-            badge.removeEventListener('click', clickHandler);
-            badge.addEventListener('click', clickHandler);
-            badge.addEventListener('touchstart', clickHandler);
-        });
-
-        const toggleBtn = document.getElementById("toggleNoteBtn");
-        const noteInput = document.getElementById("floatingNoteInput");
-        if (toggleBtn && noteInput) {
-            const newToggleHandler = () => {
-                noteInput.classList.toggle('show');
-                toggleBtn.innerHTML = noteInput.classList.contains('show') ? "📝 收起备注" : "📝 添加备注 (可选)";
-            };
-            toggleBtn.removeEventListener('click', newToggleHandler);
-            toggleBtn.addEventListener('click', newToggleHandler);
-            const saveNoteIfRecord = () => {
-                const rec = getRecordByDate(dateStr);
-                if (rec && noteInput && rec.note !== noteInput.value) {
-                    rec.note = noteInput.value.trim() || "";
-                    records[dateStr] = rec;
-                    saveRecords();
-                }
-            };
-            noteInput.removeEventListener('blur', saveNoteIfRecord);
-            noteInput.addEventListener('blur', saveNoteIfRecord);
-            if (existing && currentNote !== noteInput.value) noteInput.value = existing.note || "";
-        }
-        if (existing) {
-            const delDiv = document.createElement("div");
-            delDiv.style.marginTop = "10px";
-            delDiv.style.textAlign = "right";
-            const delBtn = document.createElement("button");
-            delBtn.className = "delete-btn";
-            delBtn.innerText = "🗑️ 删除今日噗噗记录";
-            delBtn.addEventListener('click', (e) => { e.stopPropagation(); if(confirm("删除记录？")) deleteCheckin(dateStr, e); });
-            delDiv.appendChild(delBtn);
-            recordSectionContent.appendChild(delDiv);
-        }
+    function cleanupDay(dateStr) {
+      const record = records[dateStr];
+      if (!record) return;
+      if (record.poos.length === 0 && !record.period && !record.note.trim()) delete records[dateStr];
     }
 
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+      })[char]);
+    }
+
+    function getClickPoint(event) {
+      if (event && Number.isFinite(event.clientX) && (event.clientX || event.clientY)) {
+        return { x: event.clientX, y: event.clientY };
+      }
+      const rect = event?.currentTarget?.getBoundingClientRect?.();
+      return rect ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 } : { x: innerWidth / 2, y: innerHeight / 2 };
+    }
+
+    function burst(event, emojis) {
+      const { x, y } = getClickPoint(event);
+      const items = Array.isArray(emojis) ? emojis : [emojis, "✨", "💫"];
+      items.forEach((emoji, index) => {
+        const particle = document.createElement("span");
+        particle.className = "particle";
+        particle.textContent = emoji;
+        particle.style.left = `${x}px`;
+        particle.style.top = `${y}px`;
+        const angle = (Math.PI * 2 * index) / items.length + Math.random() * 0.5;
+        const distance = 34 + Math.random() * 42;
+        particle.style.setProperty("--x", `${Math.cos(angle) * distance}px`);
+        particle.style.setProperty("--y", `${Math.sin(angle) * distance - 45}px`);
+        particle.style.setProperty("--r", `${-35 + Math.random() * 70}deg`);
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 850);
+      });
+    }
+
+    function showCombo(event, dateStr) {
+      const now = Date.now();
+      comboState.count = comboState.date === dateStr && now - comboState.time < 1250 ? comboState.count + 1 : 1;
+      comboState.date = dateStr;
+      comboState.time = now;
+      const { x, y } = getClickPoint(event);
+      const pop = document.createElement("div");
+      pop.className = "combo-pop";
+      pop.style.left = `${x}px`;
+      pop.style.top = `${y}px`;
+      pop.textContent = comboState.count > 1 ? `×${comboState.count} 连击!` : "+1";
+      document.body.appendChild(pop);
+      setTimeout(() => pop.remove(), 900);
+    }
+
+    function showToast(message) {
+      document.querySelectorAll(".toast").forEach((node) => node.remove());
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2200);
+    }
+
+    function addPoo(dateStr, type, event) {
+      const record = getDayRecord(dateStr, true);
+      record.poos.push({
+        id: createId(),
+        typeValue: type.value,
+        typeEmoji: type.emoji,
+        typeLabel: type.label,
+        createdAt: Date.now()
+      });
+      record.updatedAt = Date.now();
+      saveRecords();
+      burst(event, [type.emoji, "✨", "💨", "🌟"]);
+      showCombo(event, dateStr);
+      renderAll();
+    }
+
+    function removePoo(dateStr, id) {
+      const record = getDayRecord(dateStr);
+      if (!record) return;
+      record.poos = record.poos.filter((item) => item.id !== id);
+      record.updatedAt = Date.now();
+      cleanupDay(dateStr);
+      saveRecords();
+      renderAll();
+      showToast("已撤销这一条记录");
+    }
+
+    function undoLastPoo(dateStr) {
+      const record = getDayRecord(dateStr);
+      if (!record?.poos.length) return;
+      record.poos.pop();
+      record.updatedAt = Date.now();
+      cleanupDay(dateStr);
+      saveRecords();
+      renderAll();
+      showToast("已撤销上一次噗噗");
+    }
+
+    function clearPoos(dateStr) {
+      const record = getDayRecord(dateStr);
+      if (!record?.poos.length) return;
+      const keepText = preferences.periodEnabled ? "经期标记和备注会保留。" : "备注会保留。";
+      if (!confirm(`确定清空这一天的全部噗噗记录吗？${keepText}`)) return;
+      record.poos = [];
+      record.updatedAt = Date.now();
+      cleanupDay(dateStr);
+      saveRecords();
+      renderAll();
+    }
+
+    function togglePeriod(dateStr, event) {
+      if (!preferences.periodEnabled) return;
+      const record = getDayRecord(dateStr, true);
+      record.period = !record.period;
+      record.updatedAt = Date.now();
+      cleanupDay(dateStr);
+      saveRecords();
+      burst(event, record.period ? ["🎀", "💕", "✨", "🌸"] : ["🎀", "✨"]);
+      renderAll();
+      showToast(record.period ? "已标记为经期日 🎀" : "已取消经期标记");
+    }
+
+    function saveNote(dateStr, text) {
+      const record = getDayRecord(dateStr, Boolean(text.trim()));
+      if (!record) return;
+      record.note = text.trim();
+      record.updatedAt = Date.now();
+      cleanupDay(dateStr);
+      saveRecords();
+    }
 
     function renderCalendar() {
-        const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
-        const startWeekday = firstDayOfMonth.getDay();
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        let html = ""; let day = 1;
-        const todayYMD = formatDateToYMD(new Date());
-        for (let i = 0; i < 42; i++) {
-            if (i < startWeekday || day > daysInMonth) { html += `<div class="cal-day empty"></div>`; continue; }
-            const dateYMD = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-            const rec = getRecordByDate(dateYMD);
-            const hasPoo = !!rec;
-            let cls = "cal-day";
-            if (hasPoo) cls += " has-poo";
-            if (todayYMD === dateYMD) cls += " today";
-            const marker = hasPoo ? `<div class="poo-marker">${rec.typeEmoji}</div>` : `<div class="poo-marker" style="opacity:0.15">⚪</div>`;
-            html += `<div class="${cls}" data-date="${dateYMD}"><div class="day-number">${day}</div>${marker}</div>`;
-            day++;
-        }
-        calendarDaysDiv.innerHTML = html;
-        document.querySelectorAll('.cal-day[data-date]').forEach(el => {
-            const handler = (e) => { burstPoop(e, "💩"); const ds = el.getAttribute('data-date'); if(ds) { selectedDateStr = ds; highlightSelectedDate(selectedDateStr); renderQuickCheckinUI(selectedDateStr); } };
-            el.removeEventListener('click', handler); el.addEventListener('click', handler);
-            el.removeEventListener('touchstart', handler); el.addEventListener('touchstart', handler);
-        });
-        if (selectedDateStr) highlightSelectedDate(selectedDateStr);
-        const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
-        currentMonthYearSpan.innerText = `${currentYear}年 ${monthNames[currentMonth]}`;
+      const firstWeekday = new Date(currentYear, currentMonth, 1).getDay();
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const today = formatDate(new Date());
+      const cells = [];
+
+      for (let i = 0; i < firstWeekday; i++) cells.push('<div class="cal-day empty" aria-hidden="true"></div>');
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        const record = getDayRecord(dateStr);
+        const count = record?.poos.length || 0;
+        const latest = count ? record.poos[count - 1] : null;
+        const classes = ["cal-day"];
+        if (dateStr === selectedDateStr) classes.push("selected");
+        if (dateStr === today) classes.push("today");
+        if (count) classes.push("has-poo");
+        const showPeriod = preferences.periodEnabled && record?.period;
+        if (showPeriod) classes.push("has-period");
+
+        cells.push(`
+          <button class="${classes.join(" ")}" data-date="${dateStr}" aria-label="${day}日${count ? `，噗噗${count}次` : ""}${showPeriod ? "，经期日" : ""}">
+            <span class="day-num">${day}</span>
+            ${showPeriod ? '<span class="period-bow" aria-hidden="true">🎀</span>' : ""}
+            ${latest ? `<span class="day-marker" aria-hidden="true">${latest.typeEmoji}</span>` : '<span class="day-marker" style="opacity:.12" aria-hidden="true">•</span>'}
+            ${count ? `<span class="count-badge" aria-hidden="true">${count}</span>` : ""}
+          </button>`);
+      }
+
+      const totalCells = firstWeekday + daysInMonth;
+      const trailing = totalCells <= 35 ? 35 - totalCells : 42 - totalCells;
+      for (let i = 0; i < trailing; i++) cells.push('<div class="cal-day empty" aria-hidden="true"></div>');
+
+      calendarDays.innerHTML = cells.join("");
+      monthTitle.textContent = `${currentYear}年 ${currentMonth + 1}月`;
+    }
+
+    function formatTime(timestamp) {
+      const date = new Date(timestamp);
+      return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+    }
+
+    function renderEditor() {
+      const record = getDayRecord(selectedDateStr);
+      const count = record?.poos.length || 0;
+      editorDate.textContent = formatDisplayDate(selectedDateStr);
+      dailyCount.textContent = `当天 ${count} 次`;
+
+      const typeButtons = POO_TYPES.map((type) => `
+        <button class="type-btn" data-action="add-poo" data-type="${type.value}">
+          <span class="type-emoji">${type.emoji}</span>
+          <span class="type-name">${type.label} · +1</span>
+        </button>`).join("");
+
+      const history = count ? [...record.poos].reverse().map((item, index) => `
+        <div class="history-item">
+          <div class="history-main">
+            <span>${item.typeEmoji}</span>
+            <span>第 ${count - index} 次 · ${escapeHtml(item.typeLabel)}</span>
+            <span class="history-time">${formatTime(item.createdAt)}</span>
+          </div>
+          <button class="remove-one" data-action="remove-poo" data-id="${item.id}" aria-label="删除这一条">×</button>
+        </div>`).join("") : '<div class="empty-history">今天还没有记录，点上面的类型开始第一次吧～</div>';
+
+      const periodSection = preferences.periodEnabled ? `
+        <div class="period-row">
+          <button class="period-btn ${record?.period ? "active" : ""}" data-action="toggle-period">
+            <span class="period-copy">
+              <strong>🎀 大姨妈来了</strong>
+              <small>开启后，月历当天会出现蝴蝶结</small>
+            </span>
+            <span class="period-state">${record?.period ? "已标记 ✓" : "点击标记"}</span>
+          </button>
+        </div>` : "";
+      const notePlaceholder = preferences.periodEnabled
+        ? "例如：喝水少、肚子有点痛、经期第 1 天…"
+        : "例如：喝水少、肚子有点痛、今天比较顺畅…";
+
+      editorContent.innerHTML = `
+        <p class="section-label">选择这一次的状态；可以连续点击，每点一次都会新增一条记录。</p>
+        <div class="type-grid">${typeButtons}</div>
+        ${periodSection}
+
+        <div class="history-block">
+          <div class="section-label">当天记录明细</div>
+          <div class="history-list">${history}</div>
+        </div>
+
+        <label class="note-label" for="dayNote">📝 当天备注（自动保存）</label>
+        <textarea class="note-area" id="dayNote" placeholder="${notePlaceholder}">${escapeHtml(record?.note || "")}</textarea>
+
+        <div class="action-row">
+          <button class="soft-btn" data-action="undo-last" ${count ? "" : "disabled"}>↩ 撤销上一次</button>
+          <button class="danger-btn" data-action="clear-poos" ${count ? "" : "disabled"}>清空当天噗噗</button>
+        </div>`;
+    }
+
+    function renderAll() {
+      renderCalendar();
+      renderEditor();
     }
 
     function changeMonth(delta) {
-        let nm = currentMonth + delta, ny = currentYear;
-        if (nm < 0) { nm = 11; ny--; } else if (nm > 11) { nm = 0; ny++; }
-        currentYear = ny; currentMonth = nm;
-        renderCalendar();
-        if (selectedDateStr) {
-            const [y,m] = selectedDateStr.split('-');
-            if (parseInt(y) !== currentYear || parseInt(m)-1 !== currentMonth) { selectedDateStr = ""; renderQuickCheckinUI(null); clearSelectedStyle(); }
-            else { highlightSelectedDate(selectedDateStr); renderQuickCheckinUI(selectedDateStr); }
-        }
+      currentMonth += delta;
+      if (currentMonth < 0) { currentMonth = 11; currentYear -= 1; }
+      if (currentMonth > 11) { currentMonth = 0; currentYear += 1; }
+
+      const selectedParts = selectedDateStr.split("-").map(Number);
+      if (selectedParts[0] !== currentYear || selectedParts[1] - 1 !== currentMonth) {
+        const day = Math.min(selectedParts[2], new Date(currentYear, currentMonth + 1, 0).getDate());
+        selectedDateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      }
+      renderAll();
     }
+
+    function getMonthStats() {
+      const prefix = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-`;
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const today = new Date();
+      const isCurrentMonth = currentYear === today.getFullYear() && currentMonth === today.getMonth();
+      const isPastMonth = new Date(currentYear, currentMonth + 1, 1) <= new Date(today.getFullYear(), today.getMonth(), 1);
+      const trackableDays = isCurrentMonth ? today.getDate() : (isPastMonth ? daysInMonth : daysInMonth);
+      let pooDays = 0;
+      let totalTimes = 0;
+      let periodDays = 0;
+      let noteDays = 0;
+      let longestStreak = 0;
+      let currentStreak = 0;
+      const typeCounts = new Map();
+
+      for (let day = 1; day <= daysInMonth; day += 1) {
+        const dateStr = `${prefix}${String(day).padStart(2, "0")}`;
+        const record = records[dateStr];
+        const dayCount = record?.poos?.length || 0;
+        if (dayCount) {
+          pooDays += 1;
+          currentStreak += 1;
+          longestStreak = Math.max(longestStreak, currentStreak);
+        } else {
+          currentStreak = 0;
+        }
+        totalTimes += dayCount;
+        if (record?.period) periodDays += 1;
+        if (record?.note?.trim()) noteDays += 1;
+        record?.poos?.forEach((item) => typeCounts.set(item.typeValue, (typeCounts.get(item.typeValue) || 0) + 1));
+      }
+
+      const rank = [...typeCounts.entries()].sort((a, b) => b[1] - a[1]);
+      const coverage = trackableDays ? Math.min(100, Math.round((pooDays / trackableDays) * 100)) : 0;
+      return {
+        pooDays,
+        totalTimes,
+        periodDays,
+        noteDays,
+        longestStreak,
+        varietyCount: typeCounts.size,
+        rank,
+        daysInMonth,
+        trackableDays,
+        coverage
+      };
+    }
+
+    function getAwardSummary(stats) {
+      const unlocked = [];
+      if (stats.totalTimes >= 1) unlocked.push({ icon: "🌱", title: "初次打卡奖", desc: "认真记录了本月的第一次身体信号。" });
+      if (stats.pooDays >= 3) unlocked.push({ icon: "📔", title: "认真记录奖", desc: "本月已经记录满 3 天。" });
+      if (stats.longestStreak >= 3) unlocked.push({ icon: "🔥", title: "三日坚持星", desc: "连续记录至少 3 天。" });
+      if (stats.pooDays >= 7) unlocked.push({ icon: "🌟", title: "七日观察员", desc: "本月累计记录满 7 天。" });
+      if (stats.longestStreak >= 7) unlocked.push({ icon: "🏆", title: "七日连贯奖", desc: "连续 7 天认真听身体说话。" });
+      if (stats.varietyCount >= 3) unlocked.push({ icon: "🔎", title: "身体观察家", desc: "记录过至少 3 种不同状态。" });
+      if (stats.noteDays >= 3) unlocked.push({ icon: "✍️", title: "细节侦探奖", desc: "有 3 天认真写下了备注。" });
+      if (preferences.periodEnabled && stats.periodDays >= 1) unlocked.push({ icon: "🎀", title: "温柔照顾奖", desc: "记得关注和标记自己的经期。" });
+      if (stats.pooDays >= 20) unlocked.push({ icon: "👑", title: "月度记录大师", desc: "本月已经记录满 20 天。" });
+
+      const featured = unlocked.length ? unlocked[unlocked.length - 1] : {
+        icon: "🌱",
+        title: "待解锁新奖项",
+        desc: "完成一次记录，就能领取第一枚小奖章。"
+      };
+
+      return { unlocked, featured };
+    }
+
+    function setReportProgress(stats) {
+      const coveragePercent = Math.max(0, Math.min(100, stats.coverage));
+      const streakPercent = Math.max(0, Math.min(100, Math.round((stats.longestStreak / 7) * 100)));
+
+      $("#coverageValue").textContent = `${coveragePercent}%`;
+      $("#coverageCaption").textContent = `已记录 ${stats.pooDays} / ${stats.trackableDays} 个可记录日`;
+      $("#coverageTrack").setAttribute("aria-valuenow", String(coveragePercent));
+      $("#coverageFill").style.width = "0%";
+
+      $("#streakValue").textContent = `${stats.longestStreak} / 7天`;
+      $("#streakCaption").textContent = stats.longestStreak >= 7
+        ? "已经解锁七日连贯奖，继续按自己的节奏记录吧。"
+        : `还差 ${Math.max(0, 7 - stats.longestStreak)} 天解锁七日连贯奖`;
+      $("#streakTrack").setAttribute("aria-valuenow", String(streakPercent));
+      $("#streakFill").style.width = "0%";
+
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        $("#coverageFill").style.width = `${coveragePercent}%`;
+        $("#streakFill").style.width = `${streakPercent}%`;
+      }));
+    }
+
+    function showReport() {
+      const stats = getMonthStats();
+      const awards = getAwardSummary(stats);
+      $("#reportTitle").textContent = `${currentYear}年${currentMonth + 1}月 · 身体小结`;
+      $("#statDays").textContent = stats.pooDays;
+      $("#statTimes").textContent = stats.totalTimes;
+      $("#statPeriod").textContent = stats.periodDays;
+      updateFeatureVisibility();
+      $("#rankList").innerHTML = stats.rank.length ? stats.rank.map(([value, count]) => {
+        const type = POO_TYPES.find((item) => item.value === value) || POO_TYPES[0];
+        return `<span class="rank-chip">${type.emoji} ${type.label} × ${count}</span>`;
+      }).join("") : '<span class="rank-chip">这个月还没有噗噗记录</span>';
+
+      $("#awardIcon").textContent = awards.featured.icon;
+      $("#awardTitle").textContent = awards.featured.title;
+      $("#awardDesc").textContent = awards.featured.desc;
+      $("#awardBadgeList").innerHTML = awards.unlocked.length
+        ? awards.unlocked.map((award) => `<span class="award-badge">${award.icon} ${award.title}</span>`).join("")
+        : '<span class="award-badge locked">🔒 完成一次记录后解锁</span>';
+
+      reportModal.classList.add("show");
+      setReportProgress(stats);
+    }
+
+    function closeReport() { reportModal.classList.remove("show"); }
+
+    function roundedRectPath(ctx, x, y, width, height, radius) {
+      const r = Math.max(0, Math.min(radius, width / 2, height / 2));
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + width, y, x + width, y + height, r);
+      ctx.arcTo(x + width, y + height, x, y + height, r);
+      ctx.arcTo(x, y + height, x, y, r);
+      ctx.arcTo(x, y, x + width, y, r);
+      ctx.closePath();
+    }
+
+    function fillRoundedRect(ctx, x, y, width, height, radius, fillStyle, strokeStyle = "") {
+      roundedRectPath(ctx, x, y, width, height, radius);
+      ctx.fillStyle = fillStyle;
+      ctx.fill();
+      if (strokeStyle) {
+        ctx.strokeStyle = strokeStyle;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    }
+
+    function wrapCanvasText(ctx, text, maxWidth) {
+      const chars = Array.from(String(text));
+      const lines = [];
+      let current = "";
+      for (const char of chars) {
+        const test = current + char;
+        if (current && ctx.measureText(test).width > maxWidth) {
+          lines.push(current);
+          current = char;
+        } else {
+          current = test;
+        }
+      }
+      if (current) lines.push(current);
+      return lines;
+    }
+
+    function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 3) {
+      const lines = wrapCanvasText(ctx, text, maxWidth).slice(0, maxLines);
+      lines.forEach((line, index) => ctx.fillText(line, x, y + index * lineHeight));
+      return y + lines.length * lineHeight;
+    }
+
+    function drawCanvasProgress(ctx, x, y, width, value, startColor, endColor) {
+      fillRoundedRect(ctx, x, y, width, 24, 12, "#f1e5dd", "#ead9ce");
+      const fillWidth = Math.max(0, Math.min(width, width * value / 100));
+      if (fillWidth <= 0) return;
+      const gradient = ctx.createLinearGradient(x, y, x + width, y);
+      gradient.addColorStop(0, startColor);
+      gradient.addColorStop(1, endColor);
+      fillRoundedRect(ctx, x, y, Math.max(24, fillWidth), 24, 12, gradient);
+    }
+
+    function getShareOptions() {
+      return {
+        showTimes: $("#shareShowTimes")?.checked !== false,
+        showRank: $("#shareShowRank")?.checked !== false,
+        showPeriod: Boolean(preferences.periodEnabled && $("#shareShowPeriod")?.checked),
+        showBadges: $("#shareShowBadges")?.checked !== false
+      };
+    }
+
+    function createShareCanvas(stats, awards, options) {
+      const statItems = [
+        { label: "记录天数", value: stats.pooDays, suffix: "天", icon: "📅" },
+        { label: "最长连续", value: stats.longestStreak, suffix: "天", icon: "🔥" }
+      ];
+      if (options.showTimes) statItems.splice(1, 0, { label: "噗噗总次数", value: stats.totalTimes, suffix: "次", icon: "💩" });
+      if (options.showPeriod) statItems.push({ label: "周期天数", value: stats.periodDays, suffix: "天", icon: "🎀" });
+
+      const columns = statItems.length >= 4 ? 2 : statItems.length;
+      const cardGap = 20;
+      const cardWidth = (856 - cardGap * (columns - 1)) / columns;
+      const rows = Math.ceil(statItems.length / columns);
+      const cardHeight = rows > 1 ? 144 : 154;
+      const statStartY = 292;
+      const contentBottom = statStartY + rows * (cardHeight + 16) + 20 + 238 + 218
+        + (options.showBadges ? 172 : 0) + (options.showRank ? 164 : 0);
+      const canvasHeight = Math.max(1280, contentBottom + 290);
+
+      const canvas = document.createElement("canvas");
+      canvas.width = 1080;
+      canvas.height = canvasHeight;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("当前浏览器不支持 Canvas");
+
+      const fontFamily = '"PingFang SC", "Microsoft YaHei", system-ui, sans-serif';
+      const bg = ctx.createLinearGradient(0, 0, 1080, canvasHeight);
+      bg.addColorStop(0, "#fffaf3");
+      bg.addColorStop(.52, "#fff5f3");
+      bg.addColorStop(1, "#f8eee8");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.globalAlpha = .23;
+      ctx.fillStyle = "#efb4a4";
+      ctx.beginPath(); ctx.arc(1000, 115, 185, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#e9c18b";
+      ctx.beginPath(); ctx.arc(70, canvasHeight - 110, 210, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+
+      fillRoundedRect(ctx, 64, 58, 952, canvasHeight - 116, 52, "rgba(255,253,249,.94)", "#ead9ce");
+
+      ctx.fillStyle = "#5f493c";
+      ctx.font = `900 54px ${fontFamily}`;
+      ctx.fillText("📔 噗噗手账", 112, 150);
+      ctx.font = `700 30px ${fontFamily}`;
+      ctx.fillStyle = "#a47c65";
+      ctx.fillText(`${currentYear}年${currentMonth + 1}月 · 身体小结`, 112, 205);
+
+      ctx.font = `500 24px ${fontFamily}`;
+      ctx.fillStyle = "#ac9484";
+      ctx.fillText("认真听见身体的小信号", 112, 247);
+
+      statItems.forEach((item, index) => {
+        const col = index % columns;
+        const row = Math.floor(index / columns);
+        const x = 112 + col * (cardWidth + cardGap);
+        const y = statStartY + row * (cardHeight + 16);
+        fillRoundedRect(ctx, x, y, cardWidth, cardHeight, 28, "#fff8f2", "#ecded4");
+        ctx.font = `700 27px ${fontFamily}`;
+        ctx.fillStyle = "#9a7d6b";
+        ctx.fillText(`${item.icon} ${item.label}`, x + 26, y + 42);
+        ctx.font = `900 48px ${fontFamily}`;
+        ctx.fillStyle = "#b36f50";
+        ctx.fillText(String(item.value), x + 26, y + 102);
+        const numberWidth = ctx.measureText(String(item.value)).width;
+        ctx.font = `700 24px ${fontFamily}`;
+        ctx.fillStyle = "#aa8d7b";
+        ctx.fillText(item.suffix, x + 34 + numberWidth, y + 102);
+      });
+
+      let y = statStartY + rows * (cardHeight + 16) + 20;
+      fillRoundedRect(ctx, 112, y, 856, 214, 30, "#fff7f3", "#eadbd1");
+      ctx.font = `800 28px ${fontFamily}`;
+      ctx.fillStyle = "#7f695b";
+      ctx.fillText("📊 本月记录进度", 142, y + 46);
+      ctx.font = `700 24px ${fontFamily}`;
+      ctx.fillStyle = "#977d6c";
+      ctx.fillText("记录覆盖率", 142, y + 92);
+      ctx.textAlign = "right";
+      ctx.fillStyle = "#b36f50";
+      ctx.fillText(`${stats.coverage}%`, 938, y + 92);
+      ctx.textAlign = "left";
+      drawCanvasProgress(ctx, 142, y + 109, 796, stats.coverage, "#edb489", "#eaa4b8");
+      ctx.font = `500 22px ${fontFamily}`;
+      ctx.fillStyle = "#a18a7b";
+      ctx.fillText(`已记录 ${stats.pooDays} / ${stats.trackableDays} 个可记录日`, 142, y + 166);
+      ctx.textAlign = "right";
+      ctx.fillText(`连续目标 ${Math.min(stats.longestStreak, 7)} / 7 天`, 938, y + 166);
+      ctx.textAlign = "left";
+      y += 238;
+
+      const awardGradient = ctx.createLinearGradient(112, y, 968, y + 190);
+      awardGradient.addColorStop(0, "#fff4d9");
+      awardGradient.addColorStop(.58, "#fff0e8");
+      awardGradient.addColorStop(1, "#fff0f5");
+      fillRoundedRect(ctx, 112, y, 856, 190, 32, awardGradient, "#ecd5b8");
+      fillRoundedRect(ctx, 142, y + 42, 110, 110, 28, "rgba(255,255,255,.72)", "#e4c28d");
+      ctx.font = `64px ${fontFamily}`;
+      ctx.textAlign = "center";
+      ctx.fillText(awards.featured.icon, 197, y + 118);
+      ctx.textAlign = "left";
+      ctx.font = `700 22px ${fontFamily}`;
+      ctx.fillStyle = "#b18461";
+      ctx.fillText("本月荣誉", 282, y + 56);
+      ctx.font = `900 36px ${fontFamily}`;
+      ctx.fillStyle = "#7b5743";
+      ctx.fillText(awards.featured.title, 282, y + 101);
+      ctx.font = `500 23px ${fontFamily}`;
+      ctx.fillStyle = "#9c806e";
+      drawWrappedText(ctx, awards.featured.desc, 282, y + 139, 620, 31, 2);
+      y += 218;
+
+      if (options.showBadges) {
+        fillRoundedRect(ctx, 112, y, 856, 148, 28, "#fffaf5", "#ebded4");
+        ctx.font = `800 27px ${fontFamily}`;
+        ctx.fillStyle = "#806a5c";
+        ctx.fillText("🎖️ 已解锁勋章", 142, y + 42);
+        const badgeTitles = awards.unlocked.length ? awards.unlocked.slice(-5).map((item) => `${item.icon} ${item.title}`) : ["🔒 完成一次记录后解锁"];
+        let pillX = 142;
+        let pillY = y + 68;
+        ctx.font = `700 21px ${fontFamily}`;
+        badgeTitles.forEach((title) => {
+          const pillWidth = Math.min(290, ctx.measureText(title).width + 34);
+          if (pillX + pillWidth > 938) { pillX = 142; pillY += 44; }
+          fillRoundedRect(ctx, pillX, pillY, pillWidth, 34, 17, "#fff1e8", "#ecd9cc");
+          ctx.fillStyle = "#896b58";
+          ctx.fillText(title, pillX + 17, pillY + 24);
+          pillX += pillWidth + 12;
+        });
+        y += 172;
+      }
+
+      if (options.showRank) {
+        fillRoundedRect(ctx, 112, y, 856, 140, 28, "#fff9f4", "#ebded4");
+        ctx.font = `800 27px ${fontFamily}`;
+        ctx.fillStyle = "#806a5c";
+        ctx.fillText("🏆 本月类型排行", 142, y + 42);
+        const rankItems = stats.rank.slice(0, 3);
+        ctx.font = `700 23px ${fontFamily}`;
+        if (rankItems.length) {
+          rankItems.forEach(([value, count], index) => {
+            const type = POO_TYPES.find((item) => item.value === value) || POO_TYPES[0];
+            ctx.fillStyle = index === 0 ? "#a96247" : "#8e7463";
+            ctx.fillText(`${index + 1}. ${type.emoji} ${type.label} × ${count}`, 142 + index * 260, y + 93);
+          });
+        } else {
+          ctx.fillStyle = "#a59082";
+          ctx.fillText("这个月还没有噗噗记录", 142, y + 93);
+        }
+        y += 164;
+      }
+
+      const quote = POSITIVE_QUOTES[(currentYear * 13 + currentMonth) % POSITIVE_QUOTES.length];
+      ctx.textAlign = "center";
+      ctx.font = `700 27px ${fontFamily}`;
+      ctx.fillStyle = "#8b705f";
+      drawWrappedText(ctx, `“${quote[0]}”`, 540, Math.min(y + 35, canvasHeight - 185), 760, 38, 2);
+      ctx.font = `500 20px ${fontFamily}`;
+      ctx.fillStyle = "#b29a8a";
+      ctx.fillText("噗噗手账 · 仅展示月报摘要，不含备注与每日明细", 540, canvasHeight - 100);
+      ctx.textAlign = "left";
+
+      return canvas;
+    }
+
+    function canvasToBlob(canvas) {
+      return new Promise((resolve, reject) => {
+        if (typeof canvas.toBlob === "function") {
+          canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("图片生成失败")), "image/png", 0.96);
+          return;
+        }
+        try {
+          fetch(canvas.toDataURL("image/png")).then((response) => response.blob()).then(resolve).catch(reject);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+
+    async function generateShareImage() {
+      const button = $("#generateShareBtn");
+      const originalText = button.textContent;
+      button.disabled = true;
+      button.textContent = "正在生成分享图…";
+      try {
+        const stats = getMonthStats();
+        const awards = getAwardSummary(stats);
+        const canvas = createShareCanvas(stats, awards, getShareOptions());
+        const blob = await canvasToBlob(canvas);
+        if (shareImageUrl) URL.revokeObjectURL(shareImageUrl);
+        shareImageBlob = blob;
+        shareImageUrl = URL.createObjectURL(blob);
+        $("#sharePreviewImage").src = shareImageUrl;
+        let canNativeShare = false;
+        if (typeof File !== "undefined" && navigator.share && navigator.canShare) {
+          const file = new File([blob], `噗噗手账_${currentYear}年${currentMonth + 1}月.png`, { type: "image/png" });
+          canNativeShare = navigator.canShare({ files: [file] });
+        }
+        $("#nativeShareBtn").classList.toggle("hidden", !canNativeShare);
+        $("#nativeShareBtn").parentElement.classList.toggle("single", !canNativeShare);
+        $("#sharePreviewHint").textContent = canNativeShare
+          ? "可以直接系统分享；保存失败时也可长按图片保存到相册。"
+          : "若浏览器没有直接保存，可长按上方图片保存到相册。";
+        sharePreviewModal.classList.add("show");
+      } catch (error) {
+        console.error(error);
+        showToast("分享图生成失败，请换一个浏览器重试");
+      } finally {
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    }
+
+    function closeSharePreview() {
+      sharePreviewModal.classList.remove("show");
+    }
+
+    function saveShareImage() {
+      if (!shareImageBlob || !shareImageUrl) return showToast("请先生成分享图");
+      const link = document.createElement("a");
+      link.href = shareImageUrl;
+      link.download = `噗噗手账_${currentYear}年${currentMonth + 1}月.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      showToast("已发起保存，手机端也可以长按预览图保存");
+    }
+
+    async function nativeShareImage() {
+      if (!shareImageBlob) return showToast("请先生成分享图");
+      try {
+        if (typeof File === "undefined" || !navigator.share || !navigator.canShare) return showToast("当前浏览器暂不支持直接分享");
+        const file = new File([shareImageBlob], `噗噗手账_${currentYear}年${currentMonth + 1}月.png`, { type: "image/png" });
+        if (!navigator.canShare({ files: [file] })) return showToast("当前浏览器暂不支持直接分享");
+        await navigator.share({
+          title: `${currentYear}年${currentMonth + 1}月噗噗手账`,
+          text: "这是我的本月身体记录小结。",
+          files: [file]
+        });
+      } catch (error) {
+        if (error?.name !== "AbortError") {
+          console.error(error);
+          showToast("分享没有完成，可以先保存图片再发送");
+        }
+      }
+    }
+
+    function displayDailyQuote() {
+      const today = new Date();
+      const seed = today.getFullYear() * 372 + (today.getMonth() + 1) * 31 + today.getDate();
+      const quote = POSITIVE_QUOTES[seed % POSITIVE_QUOTES.length];
+      $("#quoteText").textContent = quote[0];
+      $("#quoteAuthor").textContent = quote[1];
+      $("#todayMini").textContent = `${today.getMonth() + 1}月${today.getDate()}日 · 轻盈一点`;
+    }
+
+    calendarDays.addEventListener("click", (event) => {
+      const target = event.target.closest("[data-date]");
+      if (!target) return;
+      selectedDateStr = target.dataset.date;
+      renderAll();
+      $("#editorCard").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+
+    editorContent.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-action]");
+      if (!button || button.disabled) return;
+      const action = button.dataset.action;
+
+      if (action === "add-poo") {
+        const type = POO_TYPES.find((item) => item.value === button.dataset.type);
+        if (type) addPoo(selectedDateStr, type, event);
+      } else if (action === "toggle-period") {
+        togglePeriod(selectedDateStr, event);
+      } else if (action === "remove-poo") {
+        removePoo(selectedDateStr, button.dataset.id);
+      } else if (action === "undo-last") {
+        undoLastPoo(selectedDateStr);
+      } else if (action === "clear-poos") {
+        clearPoos(selectedDateStr);
+      }
+    });
+
+    editorContent.addEventListener("input", (event) => {
+      if (event.target.id !== "dayNote") return;
+      clearTimeout(noteSaveTimer);
+      const value = event.target.value;
+      noteSaveTimer = setTimeout(() => saveNote(selectedDateStr, value), 350);
+    });
+
+    editorContent.addEventListener("change", (event) => {
+      if (event.target.id === "dayNote") saveNote(selectedDateStr, event.target.value);
+    });
+
+    $("#prevMonthBtn").addEventListener("click", () => changeMonth(-1));
+    $("#nextMonthBtn").addEventListener("click", () => changeMonth(1));
+    $("#reportBtn").addEventListener("click", showReport);
+    $("#settingsBtn").addEventListener("click", showSettings);
+    $("#periodToggleBtn").addEventListener("click", () => setPeriodEnabled(!preferences.periodEnabled));
+    $("#closeSettingsBtn").addEventListener("click", closeSettings);
+    $("#generateShareBtn").addEventListener("click", generateShareImage);
+    $("#saveShareImageBtn").addEventListener("click", saveShareImage);
+    $("#nativeShareBtn").addEventListener("click", nativeShareImage);
+    $("#closeSharePreviewBtn").addEventListener("click", closeSharePreview);
+    setupModal.addEventListener("click", (event) => {
+      const option = event.target.closest("[data-setup-mode]");
+      if (option) chooseSetupMode(option.dataset.setupMode);
+    });
+    settingsModal.addEventListener("click", (event) => { if (event.target === settingsModal) closeSettings(); });
+    $("#closeReportBtn").addEventListener("click", closeReport);
+    reportModal.addEventListener("click", (event) => { if (event.target === reportModal) closeReport(); });
+    sharePreviewModal.addEventListener("click", (event) => { if (event.target === sharePreviewModal) closeSharePreview(); });
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      closeReport();
+      closeSettings();
+      closeSharePreview();
+    });
 
     function init() {
-        const today = new Date();
-        currentYear = today.getFullYear();
-        currentMonth = today.getMonth();
-        loadRecords();
-        renderCalendar();
-        const todayStr = formatDateToYMD(today);
-        selectedDateStr = todayStr;
-        highlightSelectedDate(selectedDateStr);
-        renderQuickCheckinUI(selectedDateStr);
-        prevMonthBtn.onclick = (e) => { burstPoop(e, "💩"); changeMonth(-1); };
-        nextMonthBtn.onclick = (e) => { burstPoop(e, "💩"); changeMonth(1); };
-        monthReportBtn.onclick = (e) => { burstPoop(e, "📊"); showMonthlyReport(); };
-        closeReportBtn.onclick = () => { closeModal(); };
-        reportModal.addEventListener('click', (e) => { if(e.target === reportModal) closeModal(); });
-        
-        // 显示每日正能量语录
-        displayDailyQuote();
-        
-        // 添加页面载入动画
-        document.querySelector('.journal').style.opacity = '0';
-        document.querySelector('.journal').style.transform = 'translateY(20px)';
-        setTimeout(() => {
-            document.querySelector('.journal').style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
-            document.querySelector('.journal').style.opacity = '1';
-            document.querySelector('.journal').style.transform = 'translateY(0)';
-        }, 100);
+      loadRecords();
+      loadPreferences();
+      updateFeatureVisibility();
+      displayDailyQuote();
+      renderAll();
+      if (!preferences.hasChosen) setupModal.classList.add("show");
     }
-    
-    // 添加CSS动画
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes toastSlideUp {
-            from { transform: translateX(-50%) translateY(20px); opacity: 0; }
-            to { transform: translateX(-50%) translateY(0); opacity: 1; }
-        }
-        @keyframes toastFadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
-    `;
-    document.head.appendChild(style);
 
     init();
-</script>
+  </script>
 </body>
 </html>
